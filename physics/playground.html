@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<head>
+  <style>
+    body {
+      margin: 0px;
+      background-color: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    * {
+      box-sizing: border-box;
+      color: var(--text);
+    }
+    :root {
+      --primary: #65F4DA;
+      --text: #8892B0;
+      --text-bold: #CCD6F6;
+      --bg: #0A192F
+    }
+    h1 {
+      color: var(--text-bold);
+      margin: 0px;
+      font-weight: 900;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      background-color: inherit;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      border-radius: 5px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    button:hover {
+      background-color: var(--primary);
+      color: var(--bg);
+    }
+    .app {
+      display: flex;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .physics-canvas {
+      background-color: #182A46;
+    }
+    .tools {
+      width: 100%;
+      height: 100%;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .tools > * {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <canvas id="physics-canvas" class="physics-canvas"></canvas>
+    <div class="tools">
+      <h1>Physics Playground</h1>
+      <button>Start</button>
+      <button id="step-btn">
+        Step
+      </button>
+    </div>
+  </div>
+  <script>
+    const canvas = document.querySelector("#physics-canvas")
+    const ctx = canvas.getContext("2d")
+    
+    // Sets up the canvas width and height
+    const setUpCanvas = () => {
+      const setSize = () => {
+        canvas.width = 2 * window.innerWidth / 3
+        canvas.height = 2 * window.innerHeight / 3      
+      }
+      setSize()
+      window.addEventListener("resize", setSize)
+    }
+    setUpCanvas()
+    
+    const connect = () => {
+      const socket = new WebSocket(`ws://${window.location.host}/websocket`)
+      
+      const stepBtn = document.querySelector("#step-btn")
+      stepBtn.addEventListener("click", () => {
+        socket.send(JSON.stringify({
+          name: "step"
+        }))
+      })
+      
+      socket.addEventListener("open", e => {
+        // Gets the initial state
+        socket.send(JSON.stringify({
+          name: "state"
+        }))
+      })
+      
+      socket.addEventListener("message", e => {
+        msgHandler(e.data)
+      })
+    }
+    connect()
+    
+    const msgHandler = (msg) => {
+      msgData = JSON.parse(msg)
+      switch (msgData.name) {
+        case "state":
+          console.log(msgData.data)
+          // Clear canvas
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          for (const b of msgData.data) {
+            drawBody(b)
+          }
+          return
+        default:
+          console.error(`Invalid msg name ${msg.name}`)
+          return
+      }
+    }
+    
+    const drawBody = (body) => {
+      // Circle
+      if (body.shape.radius !== undefined) {
+        ctx.fillStyle = "#65F4DA"
+				ctx.beginPath()
+				ctx.arc(body.position.x, body.position.y, body.shape.radius, 0, 2 * Math.PI)
+				ctx.closePath()
+				ctx.fill()
+			} else {
+				console.error("unknown shape: ")
+				console.error(body)
+		  }
+    }
+    
+  </script>
+</body>
