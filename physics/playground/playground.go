@@ -1,26 +1,33 @@
-package physics
+package playground
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 
+	"github.com/ashleycheung/go-game/event"
+	"github.com/ashleycheung/go-game/physics"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
 type PhysicsPlayground struct {
-	r     *gin.Engine
-	world *World
+	r *gin.Engine
+	// A clone of the world as a save point
+	worldSave *physics.World
+	// The current running world
+	world *physics.World
 }
 
-func NewPhysicsPlayground(world *World) *PhysicsPlayground {
+// Creates a new physics body given a world
+func NewPhysicsPlayground(world *physics.World) *PhysicsPlayground {
 	p := PhysicsPlayground{
-		r:     gin.Default(),
-		world: world,
+		r:         gin.Default(),
+		worldSave: world.Clone(),
+		world:     world,
 	}
 
-	p.r.StaticFile("/", "./physics/playground.html")
+	p.r.StaticFile("/", "./physics/playground/playground.html")
 
 	var upgrader = websocket.Upgrader{}
 
@@ -67,7 +74,7 @@ type SocketPacket struct {
 	Data any    `json:"data"`
 }
 
-func sendState(world *World, msgType int, ws *websocket.Conn) error {
+func sendState(world *physics.World, msgType int, ws *websocket.Conn) error {
 	bodies := world.Bodies()
 	r := SocketPacket{
 		Name: "state",
@@ -88,6 +95,25 @@ func msgHandler(
 		return sendState(playground.world, msgType, ws)
 	case "step":
 		playground.world.Step(300)
+		return sendState(playground.world, msgType, ws)
+	case "start":
+		// Every time a tick finishes send a state update
+		removeListener := playground.world.Event.AddListener(
+			string(physics.StepEndEvent),
+			func(e event.Event) {
+				sendState(playground.world, msgType, ws)
+			})
+
+		// Start world
+		go func() {
+			playground.world.Run(60)
+			removeListener()
+			fmt.Println("Playground stopped")
+		}()
+		return nil
+	case "stop":
+		playground.world.Stop()
+		playground.world = playground.worldSave.Clone()
 		return sendState(playground.world, msgType, ws)
 	}
 	return errors.New("msg handler: invalid msg: " + packet.Name)

@@ -1,6 +1,9 @@
 package main
 
-import "github.com/ashleycheung/go-game/physics"
+import (
+	"github.com/ashleycheung/go-game/physics"
+	"github.com/ashleycheung/go-game/physics/playground"
+)
 
 func main() {
 	w := physics.NewWorld()
@@ -37,6 +40,6 @@ func main() {
 	w.AddBody(b5)
 
 	// physics.NewPhysicsServer(w, 8070)
-	playground := physics.NewPhysicsPlayground(w)
+	playground := playground.NewPhysicsPlayground(w)
 	playground.Run(5050)
 }

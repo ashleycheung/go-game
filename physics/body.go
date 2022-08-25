@@ -45,3 +45,10 @@ func (b *Body) Step(delta float64) {
 	// Updates position
 	b.Position = b.Position.Add(b.Velocity.Scale(delta / 1000))
 }
+
+// Makes a deep clone of the given body
+// with the exact same id
+func (b *Body) Clone() *Body {
+	clonedBody := *b
+	return &clonedBody
+}

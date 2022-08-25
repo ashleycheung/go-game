@@ -66,7 +66,12 @@
     <canvas id="physics-canvas" class="physics-canvas"></canvas>
     <div class="tools">
       <h1>Physics Playground</h1>
-      <button>Start</button>
+      <button id="start-btn">
+        Start
+      </button>
+      <button id="stop-btn">
+        Stop
+      </button>      
       <button id="step-btn">
         Step
       </button>
@@ -89,6 +94,20 @@
     
     const connect = () => {
       const socket = new WebSocket(`ws://${window.location.host}/websocket`)
+      
+      const startBtn = document.querySelector("#start-btn")
+      startBtn.addEventListener("click", () => {
+        socket.send(JSON.stringify({
+          name: "start"
+        }))
+      })
+      
+      const stopBtn = document.querySelector("#stop-btn")
+      stopBtn.addEventListener("click", () => {
+        socket.send(JSON.stringify({
+          name: "stop"
+        }))
+      })
       
       const stepBtn = document.querySelector("#step-btn")
       stepBtn.addEventListener("click", () => {
@@ -114,7 +133,6 @@
       msgData = JSON.parse(msg)
       switch (msgData.name) {
         case "state":
-          console.log(msgData.data)
           // Clear canvas
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           for (const b of msgData.data) {
