@@ -148,16 +148,39 @@
     const drawBody = (body) => {
       // Circle
       if (body.shape.radius !== undefined) {
-        ctx.fillStyle = "#65F4DA"
+        ctx.strokeStyle = "#EA80FC"
+        if (body.static) {
+          ctx.strokeStyle = "#FFFFFF"
+        }
 				ctx.beginPath()
 				ctx.arc(body.position.x, body.position.y, body.shape.radius, 0, 2 * Math.PI)
-				ctx.closePath()
-				ctx.fill()
+				ctx.stroke()
 			} else {
 				console.error("unknown shape: ")
 				console.error(body)
 		  }
-    }
+		  
+		  // Draw velocity
+		  if (body.velocity.x !== 0 || body.velocity.y !== 0) {
+        ctx.strokeStyle = "#606368"
+        ctx.beginPath()
+  		  ctx.moveTo(body.position.x, body.position.y)
+  		  const magnitude = Math.sqrt(Math.pow(body.velocity.x, 2) + Math.pow(body.velocity.y, 2))
+  		  const normalized = {
+  		    x: body.velocity.x / magnitude,
+          y: body.velocity.y / magnitude,
+  		  }
+  		  // The max velocity that will still
+  		  // make an effect to the line length
+  		  const maxVel = 50
+  		  const lineLength = 30 * Math.min(magnitude / maxVel, 1)
+  		  ctx.lineTo(
+  		    body.position.x + (normalized.x * lineLength),
+          body.position.y + (normalized.y * lineLength),
+  		  )
+  		  ctx.stroke()
+		  }
+		}
     
   </script>
 </body>

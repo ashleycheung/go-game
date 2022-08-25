@@ -1,5 +1,7 @@
 package event
 
+import "fmt"
+
 func NewEventManager() EventManager {
 	return EventManager{
 		listeners: map[string]map[int]EventListener{},
@@ -17,7 +19,7 @@ type Event struct {
 	Name string
 }
 
-type EventListener func(e Event)
+type EventListener func(e Event) error
 
 // Adds an event listener
 func (e *EventManager) AddListener(
@@ -44,8 +46,12 @@ func (e *EventManager) AddListener(
 	}
 }
 
-func (e *EventManager) EmitEvent(event Event) {
+func (e *EventManager) EmitEvent(event Event) error {
 	for _, listener := range e.listeners[event.Name] {
-		listener(event)
+		err := listener(event)
+		if err != nil {
+			return fmt.Errorf("event %s: %w", event.Name, err)
+		}
 	}
+	return nil
 }

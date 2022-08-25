@@ -7,7 +7,8 @@ type ShapeType string
 
 // The different shape types supported
 const (
-	CircleType ShapeType = "circle"
+	CircleType    ShapeType = "circle"
+	RectangleType ShapeType = "rectangle"
 )
 
 // A shape
@@ -30,4 +31,21 @@ func (c Circle) GetType() ShapeType {
 // Converts circle to a string
 func (c Circle) String() string {
 	return "Circle: radius: " + fmt.Sprint(c.Radius)
+}
+
+// The rectangle position is
+// the center
+type Rectangle struct {
+	// Represents the width
+	// and height of the rectangle
+	// respectively
+	Size Vector `json:"size"`
+}
+
+func (r Rectangle) GetType() ShapeType {
+	return RectangleType
+}
+
+func (r Rectangle) String() string {
+	return fmt.Sprintf("Rectangle: width %f, height: %f", r.Size.X, r.Size.Y)
 }

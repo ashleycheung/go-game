@@ -5,22 +5,86 @@ package physics
 // values of the bodies of the collisions are changed
 func ApplyMomentum(collisions []Collision) {
 	for _, c := range collisions {
-		bA := c.B1
-		bB := c.B2
+		b1 := c.B1
+		b2 := c.B2
 
-		// Formula
-		// vAf = (mA - mB) * vA / (mA + mB) + (2 * mB) * vB / (mA + mB)
-		newAVel := bA.Velocity.
-			Scale((bA.Mass - bB.Mass) / (bA.Mass + bB.Mass)).
-			Add(bB.Velocity.Scale(2 * bB.Mass / (bA.Mass + bB.Mass)))
+		// If positions are the same
+		// we cant calculate momentum
+		if b1.Position.DistanceSquaredTo(b2.Position) == 0 {
+			continue
+		}
 
-		// Formula
-		// vBf = (2 * mA) * vA / (mA + mB) + (mB - mA) * vB / (mA + mB)
-		newBVel := bA.Velocity.
-			Scale(2 * bA.Mass / (bA.Mass + bB.Mass)).
-			Add(bB.Velocity.Scale((bB.Mass - bA.Mass) / (bA.Mass + bB.Mass)))
+		newVel1 := b1.Velocity
+		newVel2 := b2.Velocity
 
-		bA.Velocity = newAVel
-		bB.Velocity = newBVel
+		if b1.Static && b2.Static {
+			continue
+		} else if b1.Static {
+			// Uses the same formula as below
+			// except finds the limit of mass1 approach infinity
+			newVel2 = b2.Velocity.Subtract(
+				b2.Position.Subtract(b1.Position).Scale(
+					b2.Velocity.Subtract(b1.Velocity).Dot(b2.Position.Subtract(b1.Position)) /
+						b2.Position.DistanceSquaredTo(b1.Position) * 2,
+				))
+
+		} else if b2.Static {
+			// Uses the same formula as below
+			// except finds the limit of mass2 approach infinity
+			newVel1 = b1.Velocity.Subtract(
+				b1.Position.Subtract(b2.Position).Scale(
+					b1.Velocity.Subtract(b2.Velocity).Dot(b1.Position.Subtract(b2.Position)) /
+						b1.Position.DistanceSquaredTo(b2.Position) * 2,
+				))
+
+		} else {
+			// Implemented using the formula
+			// described here:
+			// https://en.wikipedia.org/wiki/Elastic_collision#Two-dimensional_collision_with_two_moving_objects
+			newVel1 = b1.Velocity.Subtract(
+				b1.Position.Subtract(b2.Position).Scale(
+					b1.Velocity.Subtract(b2.Velocity).
+						Dot(b1.Position.Subtract(b2.Position)) /
+						b1.Position.DistanceSquaredTo(b2.Position) *
+						2 * b2.Mass / (b1.Mass + b2.Mass),
+				))
+
+			newVel2 = b2.Velocity.Subtract(
+				b2.Position.Subtract(b1.Position).Scale(
+					b2.Velocity.Subtract(b1.Velocity).
+						Dot(b2.Position.Subtract(b1.Position)) /
+						b2.Position.DistanceSquaredTo(b1.Position) *
+						2 * b1.Mass / (b1.Mass + b2.Mass),
+				))
+		}
+
+		// // If any of them are static
+		// // set the other body to velocity 0
+		// if b1.Static && b2.Static {
+		// 	continue
+		// } else if b1.Static {
+		// 	b2.Velocity = b2.Velocity.Scale(-1)
+		// } else if b2.Static {
+		// 	b1.Velocity = b1.Velocity.Scale(-1)
+		// }
+
+		// // Formula
+		// // vAf = (m1 - m2) * vA / (m1 + m2) + (2 * m2) * vB / (m1 + m2)
+		// newAVel := b1.Velocity.
+		// 	Scale((b1.Mass - b2.Mass) / (b1.Mass + b2.Mass)).
+		// 	Add(b2.Velocity.Scale(2 * b2.Mass / (b1.Mass + b2.Mass)))
+
+		// // Formula
+		// // vBf = (2 * m1) * vA / (m1 + m2) + (m2 - m1) * vB / (m1 + m2)
+		// newBVel := b1.Velocity.
+		// 	Scale(2 * b1.Mass / (b1.Mass + b2.Mass)).
+		// 	Add(b2.Velocity.Scale((b2.Mass - b1.Mass) / (b1.Mass + b2.Mass)))
+
+		if !b1.Static {
+			b1.Velocity = newVel1
+		}
+		if !b2.Static {
+			b2.Velocity = newVel2
+		}
 	}
 }

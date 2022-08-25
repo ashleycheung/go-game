@@ -12,6 +12,7 @@ func NewWorld() *World {
 		bodies:                  map[int]*Body{},
 		MaxResolutionIterations: 5,
 		Event:                   event.NewEventManager(),
+		Config:                  DefaultWorldConfig(),
 	}
 }
 
@@ -19,6 +20,9 @@ type World struct {
 	// The current id of the object
 	// last object created
 	idIncrement int
+
+	// The config of the world
+	Config WorldConfig
 
 	// Manages the events in the world
 	Event event.EventManager
@@ -45,6 +49,7 @@ func (w *World) AddBody(b *Body) {
 	w.idIncrement++
 	// Set body to new id
 	b.Id = w.idIncrement
+	b.world = w
 	// Add to map
 	w.bodies[b.Id] = b
 }
@@ -62,6 +67,7 @@ func (w *World) RemoveBody(b *Body) bool {
 	if !exists {
 		return false
 	}
+	b.world = nil
 	delete(w.bodies, b.Id)
 	return true
 }
@@ -88,9 +94,6 @@ func (w *World) Step(delta float64) {
 	// to resolve until no more collisions occur
 	collisions := FindCollisions(w)
 
-	// Update the velocities from the collisions
-	ApplyMomentum(collisions)
-
 	// Resolve the collisions
 	resolutionIter := 0
 	for len(collisions) != 0 && resolutionIter < w.MaxResolutionIterations {
@@ -99,10 +102,16 @@ func (w *World) Step(delta float64) {
 		resolutionIter++
 	}
 
+	// Update the velocities from the collisions
+	ApplyMomentum(collisions)
+
 	// Call step finish event
-	w.Event.EmitEvent(event.Event{
+	err := w.Event.EmitEvent(event.Event{
 		Name: string(StepEndEvent),
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Makes a deep clone of this game world

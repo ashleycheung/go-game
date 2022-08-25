@@ -7,27 +7,19 @@ import (
 
 func main() {
 	w := physics.NewWorld()
-	// b1 := w.NewBody(physics.Circle{Radius: 20})
-	// b1.Position = physics.Vector{X: 400, Y: 400}
-	// w.AddBody(b1)
-
-	// b2 := w.NewBody(physics.Circle{Radius: 20})
-	// b2.Position = physics.Vector{X: 140, Y: 400}
-	// b2.Velocity = physics.Vector{X: 30, Y: 0}
-	// w.AddBody(b2)
 
 	b1 := physics.NewBody(physics.Circle{Radius: 20})
 	b1.Position = physics.Vector{X: 140, Y: 140}
-	b1.Velocity = physics.Vector{X: -50, Y: 50}
+	b1.Velocity = physics.Vector{X: 100, Y: 0}
 	w.AddBody(b1)
 
-	b2 := physics.NewBody(physics.Circle{Radius: 20})
-	b2.Position = physics.Vector{X: 10, Y: 110}
-	b2.Velocity = physics.Vector{X: 30, Y: 30}
+	b2 := physics.NewBody(physics.Circle{Radius: 30})
+	b2.Position = physics.Vector{X: 140, Y: 140}
+	b2.Static = true
 	w.AddBody(b2)
 
 	b3 := physics.NewBody(physics.Circle{Radius: 20})
-	b3.Position = physics.Vector{X: 200, Y: 120}
+	b3.Position = physics.Vector{X: 200, Y: 150}
 	w.AddBody(b3)
 
 	b4 := physics.NewBody(physics.Circle{Radius: 20})
@@ -39,7 +31,6 @@ func main() {
 	b5.Velocity = physics.Vector{X: -20, Y: 10}
 	w.AddBody(b5)
 
-	// physics.NewPhysicsServer(w, 8070)
 	playground := playground.NewPhysicsPlayground(w)
-	playground.Run(5050)
+	playground.Run(5070)
 }

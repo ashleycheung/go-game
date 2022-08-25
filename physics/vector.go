@@ -75,6 +75,11 @@ func (v Vector) Magnitude() float64 {
 	return math.Sqrt(math.Pow(v.X, 2) + math.Pow(v.Y, 2))
 }
 
+// Returns the sqred of the magnitude
+func (v Vector) MagnitudeSqred() float64 {
+	return math.Pow(v.X, 2) + math.Pow(v.Y, 2)
+}
+
 // Normalize the vector
 func (v Vector) Normalize() Vector {
 	mag := v.Magnitude()
@@ -92,4 +97,14 @@ func (v Vector) DistanceSquaredTo(v2 Vector) float64 {
 // Returns distance to target vector
 func (v Vector) DistanceTo(v2 Vector) float64 {
 	return math.Sqrt(v.DistanceSquaredTo(v2))
+}
+
+// Returns the dot product
+func (v Vector) Dot(v2 Vector) float64 {
+	return v.X*v2.X + v.Y*v2.Y
+}
+
+// Returns whether this is the zero vector
+func (v Vector) IsZero() bool {
+	return v.X == 0 && v.Y == 0
 }

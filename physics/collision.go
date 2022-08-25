@@ -15,8 +15,7 @@ type Collision struct {
 
 // Returns all pairs of body collision within
 // the world. When two shapes just touch
-// on the edge they are not considered colliding.
-// They have to overlap
+// on the edge they are considered colliding.
 func FindCollisions(w *World) []Collision {
 	bodies := w.Bodies()
 
@@ -34,6 +33,8 @@ func FindCollisions(w *World) []Collision {
 			// Pass to the correct shape collision detector
 			if body1ShapeType == CircleType && body2ShapeType == CircleType {
 				doesCollide = CircleCircleCollision(body1, body2)
+			} else if body1ShapeType == RectangleType && body2ShapeType == RectangleType {
+				doesCollide = RectangleRectangleCollision(body1, body2)
 			} else {
 				panic(fmt.Sprintf("collisions between %s and %s not supported", body1ShapeType, body2ShapeType))
 			}
@@ -58,5 +59,22 @@ func CircleCircleCollision(b1 *Body, b2 *Body) bool {
 
 	dist := b1.Position.DistanceTo(b2.Position)
 	radiiSum := b1Circle.Radius + b2Circle.Radius
-	return dist < radiiSum
+	return dist <= radiiSum
+}
+
+// Logic taken from here
+// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+func RectangleRectangleCollision(b1 *Body, b2 *Body) bool {
+	b1Rect := b1.Shape.(Rectangle)
+	b1TopLeft := b1.Position.Subtract(b1Rect.Size.Scale(0.5))
+	b1BottomRight := b1.Position.Add(b1Rect.Size.Scale(0.5))
+
+	b2Rect := b2.Shape.(Rectangle)
+	b2TopLeft := b2.Position.Subtract(b2Rect.Size.Scale(0.5))
+	b2BottomRight := b2.Position.Add(b2Rect.Size.Scale(0.5))
+
+	return b1TopLeft.X < b2BottomRight.X &&
+		b1BottomRight.X > b2TopLeft.X &&
+		b1TopLeft.Y < b2BottomRight.Y &&
+		b1BottomRight.Y > b2TopLeft.Y
 }

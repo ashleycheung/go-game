@@ -11,6 +11,13 @@ import (
 // so this must be run iteratively with detect collision
 func Resolve(collisions []Collision) {
 	for _, c := range collisions {
+		// If both bodies are static
+		// don't resolve
+		if c.B1.Static && c.B2.Static {
+			continue
+		}
+
+		// Pass to their respective resolver
 		body1ShapeType := c.B1.Shape.GetType()
 		body2ShapeType := c.B2.Shape.GetType()
 		if body1ShapeType == CircleType && body2ShapeType == CircleType {
@@ -22,6 +29,7 @@ func Resolve(collisions []Collision) {
 }
 
 // Resolves the circle circle collision
+// and assumes that only at most one body is static
 func CircleCircleResolution(b1 *Body, b2 *Body) {
 	b1Circle := b1.Shape.(Circle)
 	b2Circle := b2.Shape.(Circle)
@@ -43,8 +51,17 @@ func CircleCircleResolution(b1 *Body, b2 *Body) {
 	// Normalize direction
 	b1ToB2Dir = b1ToB2Dir.Normalize()
 
-	// Move b2 away by half the overlap amount
-	b2.Position = b2.Position.Add(b1ToB2Dir.Scale(overlapAmount / 2))
-	// Move b1 away by half overlapped amount in opposite direction
-	b1.Position = b1.Position.Subtract(b1ToB2Dir.Scale(overlapAmount / 2))
+	// If any of them are static
+	// don't move them
+	if b1.Static {
+		// Only move b2
+		b2.Position = b2.Position.Add(b1ToB2Dir.Scale(overlapAmount))
+	} else if b2.Static {
+		b1.Position = b1.Position.Subtract(b1ToB2Dir.Scale(overlapAmount))
+	} else {
+		// Move b2 away by half the overlap amount
+		b2.Position = b2.Position.Add(b1ToB2Dir.Scale(overlapAmount / 2))
+		// Move b1 away by half overlapped amount in opposite direction
+		b1.Position = b1.Position.Subtract(b1ToB2Dir.Scale(overlapAmount / 2))
+	}
 }

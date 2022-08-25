@@ -82,6 +82,7 @@ func sendState(world *physics.World, msgType int, ws *websocket.Conn) error {
 	}
 	jsonStr, err := json.Marshal(r)
 	if err != nil {
+		fmt.Println(r)
 		return fmt.Errorf("msg handler: %s", err)
 	}
 	return ws.WriteMessage(msgType, jsonStr)
@@ -97,18 +98,18 @@ func msgHandler(
 		playground.world.Step(300)
 		return sendState(playground.world, msgType, ws)
 	case "start":
+		fmt.Println("start")
 		// Every time a tick finishes send a state update
 		removeListener := playground.world.Event.AddListener(
 			string(physics.StepEndEvent),
-			func(e event.Event) {
-				sendState(playground.world, msgType, ws)
+			func(e event.Event) error {
+				return sendState(playground.world, msgType, ws)
 			})
 
 		// Start world
 		go func() {
 			playground.world.Run(60)
 			removeListener()
-			fmt.Println("Playground stopped")
 		}()
 		return nil
 	case "stop":
