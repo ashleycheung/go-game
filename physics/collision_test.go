@@ -51,3 +51,103 @@ func TestCollision(t *testing.T) {
 		t.Fatalf("Expecting collision between %s and %s", b2, b1)
 	}
 }
+
+// Should collide
+func TestCircleCircleCollision1(t *testing.T) {
+	c1R := 5.0
+	c1Pos := Vector{X: 0, Y: 0}
+
+	c2R := 5.0
+	c2Pos := Vector{X: 8, Y: 0}
+	if !CircleCircleCollision(c1R, c1Pos, c2R, c2Pos) {
+		t.Fatalf("Should collide")
+	}
+}
+
+// Even if on edge, the circles should collide
+func TestCircleCircleCollision2(t *testing.T) {
+	c1R := 5.0
+	c1Pos := Vector{X: 0, Y: 0}
+
+	c2R := 5.0
+	c2Pos := Vector{X: 10, Y: 0}
+	if !CircleCircleCollision(c1R, c1Pos, c2R, c2Pos) {
+		t.Fatalf("Should collide")
+	}
+}
+
+// Should not collide
+func TestCircleCircleCollision3(t *testing.T) {
+	c1R := 5.0
+	c1Pos := Vector{X: 0, Y: 0}
+
+	c2R := 5.0
+	c2Pos := Vector{X: 12, Y: 0}
+	if CircleCircleCollision(c1R, c1Pos, c2R, c2Pos) {
+		t.Fatalf("Should not collide")
+	}
+}
+
+// A circle inside another should collide
+func TestCircleCircleCollision4(t *testing.T) {
+	c1R := 5.0
+	c1Pos := Vector{X: 0, Y: 0}
+
+	c2R := 20.0
+	c2Pos := Vector{X: 1, Y: 0}
+	if !CircleCircleCollision(c1R, c1Pos, c2R, c2Pos) {
+		t.Fatalf("Should collide")
+	}
+}
+
+// A circle on the same origin should collide
+func TestCircleCircleCollision5(t *testing.T) {
+	c1R := 5.0
+	c1Pos := Vector{X: 0, Y: 0}
+
+	c2R := 8.0
+	c2Pos := Vector{X: 0, Y: 0}
+	if !CircleCircleCollision(c1R, c1Pos, c2R, c2Pos) {
+		t.Fatalf("Should collide")
+	}
+}
+
+// The rectangle should collides
+func TestRectangleRectangleCollision1(t *testing.T) {
+	r1Size := Vector{X: 4, Y: 4}
+	r1Position := Vector{X: 4, Y: 4}
+
+	r2Size := Vector{X: 4, Y: 4}
+	r2Position := Vector{X: 2, Y: 2}
+
+	if !RectangleRectangleCollision(r1Size, r1Position, r2Size, r2Position) {
+		t.Fatalf("Should collide")
+	}
+}
+
+// Rectangles just touching on edge
+// should collide
+func TestRectangleRectangleCollision2(t *testing.T) {
+	r1Size := Vector{X: 4, Y: 4}
+	r1Position := Vector{X: 0, Y: 0}
+
+	r2Size := Vector{X: 4, Y: 4}
+	r2Position := Vector{X: 4, Y: 0}
+
+	if !RectangleRectangleCollision(r1Size, r1Position, r2Size, r2Position) {
+		t.Fatalf("Should collide")
+	}
+}
+
+// Rectangle should collide on corners
+func TestRectangleRectangleCollision3(t *testing.T) {
+	r1Size := Vector{X: 4, Y: 4}
+	r1Position := Vector{X: 0, Y: 0}
+
+	r2Size := Vector{X: 4, Y: 4}
+	r2Position := Vector{X: 4, Y: 4}
+
+	if !RectangleRectangleCollision(r1Size, r1Position, r2Size, r2Position) {
+		t.Fatalf("Should collide")
+	}
+}

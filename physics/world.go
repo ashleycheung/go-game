@@ -9,10 +9,9 @@ import (
 
 func NewWorld() *World {
 	return &World{
-		bodies:                  map[int]*Body{},
-		MaxResolutionIterations: 5,
-		Event:                   event.NewEventManager(),
-		Config:                  DefaultWorldConfig(),
+		bodies: map[int]*Body{},
+		Event:  event.NewEventManager(),
+		Config: DefaultWorldConfig(),
 	}
 }
 
@@ -30,10 +29,6 @@ type World struct {
 	// Maps the id to the body
 	// in the world
 	bodies map[int]*Body
-
-	// The maximum amount of resolution
-	// iterations before giving up
-	MaxResolutionIterations int
 
 	// Whether the world is running or not
 	running bool
@@ -97,12 +92,7 @@ func (w *World) Step(delta float64) {
 	collisions := FindCollisions(w)
 
 	// Resolve the collisions
-	resolutionIter := 0
-	for len(collisions) != 0 && resolutionIter < w.MaxResolutionIterations {
-		Resolve(collisions)
-		collisions = FindCollisions(w)
-		resolutionIter++
-	}
+	Resolve(collisions)
 
 	// Update the velocities from the collisions
 	ApplyMomentum(collisions)
@@ -119,7 +109,6 @@ func (w *World) Step(delta float64) {
 // Makes a deep clone of this game world
 func (w *World) Clone() *World {
 	clonedWorld := NewWorld()
-	clonedWorld.MaxResolutionIterations = w.MaxResolutionIterations
 	clonedWorld.idIncrement = w.idIncrement
 	// A cloned world will be paused by default
 	clonedWorld.running = false

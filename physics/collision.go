@@ -83,7 +83,7 @@ func CircleCircleCollision(
 	circle1Position Vector,
 	circle2Radius float64,
 	circle2Position Vector,
-) bool {
+) (didCollide bool) {
 	dist := circle1Position.DistanceTo(circle2Position)
 	radiiSum := circle1Radius + circle2Radius
 	return dist <= radiiSum
@@ -97,7 +97,7 @@ func CircleRectangleCollision(
 	circlePosition Vector,
 	rectSize Vector,
 	rectPosition Vector,
-) bool {
+) (didCollide bool) {
 	circleDist := Vector{
 		X: math.Abs(circlePosition.X - rectPosition.X),
 		Y: math.Abs(circlePosition.Y - rectPosition.Y),
@@ -128,21 +128,25 @@ func CircleRectangleCollision(
 func RectangleRectangleCollision(
 	// The size of rectangle 1
 	rect1Size Vector,
-	// The position of rectangle 1
+	// The position of rectangle 1.
+	// The position is the center of
+	// the rectangle
 	rect1Position Vector,
 	// The size of the rectangle 2
 	rect2Size Vector,
 	// The position of the rectangle 2
+	// The position is the center of
+	// the rectangle
 	rect2Position Vector,
-) bool {
+) (didCollide bool) {
 	b1TopLeft := rect1Position.Subtract(rect1Size.Scale(0.5))
 	b1BottomRight := rect1Position.Add(rect1Size.Scale(0.5))
 
 	b2TopLeft := rect2Position.Subtract(rect2Size.Scale(0.5))
 	b2BottomRight := rect2Position.Add(rect2Size.Scale(0.5))
 
-	return b1TopLeft.X < b2BottomRight.X &&
-		b1BottomRight.X > b2TopLeft.X &&
-		b1TopLeft.Y < b2BottomRight.Y &&
-		b1BottomRight.Y > b2TopLeft.Y
+	return b1TopLeft.X <= b2BottomRight.X &&
+		b1BottomRight.X >= b2TopLeft.X &&
+		b1TopLeft.Y <= b2BottomRight.Y &&
+		b1BottomRight.Y >= b2TopLeft.Y
 }
