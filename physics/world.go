@@ -86,6 +86,8 @@ func (w *World) Bodies() []*Body {
 func (w *World) Step(delta float64) {
 	// Update bodies
 	for _, b := range w.bodies {
+		// Clear collision ids
+		b.CollisionBodyIds = map[int]bool{}
 		b.Step(delta)
 		w.bodies[b.Id] = b
 	}

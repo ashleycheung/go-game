@@ -9,10 +9,11 @@ import (
 // The body is not currently in the world yet.
 func NewBody(shape Shape) *Body {
 	newBody := Body{
-		Id:              0,
-		Shape:           shape,
-		Mass:            1,
-		DragCoefficient: 1,
+		Id:               0,
+		Shape:            shape,
+		Mass:             1,
+		DragCoefficient:  1,
+		CollisionBodyIds: map[int]bool{},
 	}
 	return &newBody
 }
@@ -49,6 +50,11 @@ type Body struct {
 	// If set to true, this body can't
 	// be knocked back
 	Static bool `json:"static"`
+
+	// The ids of all the bodies
+	// that this body is currently
+	// colliding with
+	CollisionBodyIds map[int]bool `json:"collisionBodyIds"`
 
 	// A Reference to the world
 	// the body is in

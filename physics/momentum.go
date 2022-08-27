@@ -58,28 +58,6 @@ func ApplyMomentum(collisions []Collision) {
 				))
 		}
 
-		// // If any of them are static
-		// // set the other body to velocity 0
-		// if b1.Static && b2.Static {
-		// 	continue
-		// } else if b1.Static {
-		// 	b2.Velocity = b2.Velocity.Scale(-1)
-		// } else if b2.Static {
-		// 	b1.Velocity = b1.Velocity.Scale(-1)
-		// }
-
-		// // Formula
-		// // vAf = (m1 - m2) * vA / (m1 + m2) + (2 * m2) * vB / (m1 + m2)
-		// newAVel := b1.Velocity.
-		// 	Scale((b1.Mass - b2.Mass) / (b1.Mass + b2.Mass)).
-		// 	Add(b2.Velocity.Scale(2 * b2.Mass / (b1.Mass + b2.Mass)))
-
-		// // Formula
-		// // vBf = (2 * m1) * vA / (m1 + m2) + (m2 - m1) * vB / (m1 + m2)
-		// newBVel := b1.Velocity.
-		// 	Scale(2 * b1.Mass / (b1.Mass + b2.Mass)).
-		// 	Add(b2.Velocity.Scale((b2.Mass - b1.Mass) / (b1.Mass + b2.Mass)))
-
 		if !b1.Static {
 			b1.Velocity = newVel1
 		}

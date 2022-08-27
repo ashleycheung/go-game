@@ -49,3 +49,10 @@ func (r Rectangle) GetType() ShapeType {
 func (r Rectangle) String() string {
 	return fmt.Sprintf("Rectangle: width %f, height: %f", r.Size.X, r.Size.Y)
 }
+
+// Utility function to return the corners of a rectangle
+func RectangleCorners(position Vector, rect Rectangle) (topLeft, bottomRight Vector) {
+	topLeft = position.Subtract(rect.Size.Scale(0.5))
+	bottomRight = position.Add(rect.Size.Scale(0.5))
+	return
+}

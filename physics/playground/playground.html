@@ -146,15 +146,29 @@
     }
     
     const drawBody = (body) => {
+      ctx.lineWidth = 3
+      if (Object.keys(body.collisionBodyIds).length !== 0) {
+        ctx.strokeStyle = "#ff0000"
+      } else if (body.static) {
+        ctx.strokeStyle = "#FFFFFF"
+      } else {
+        ctx.strokeStyle = "#EA80FC"
+      }
       // Circle
       if (body.shape.radius !== undefined) {
-        ctx.strokeStyle = "#EA80FC"
-        if (body.static) {
-          ctx.strokeStyle = "#FFFFFF"
-        }
 				ctx.beginPath()
 				ctx.arc(body.position.x, body.position.y, body.shape.radius, 0, 2 * Math.PI)
 				ctx.stroke()
+			} else if (body.shape.size !== undefined) {
+			  // Rectangle
+			  ctx.beginPath();
+			  ctx.rect(
+			    body.position.x - (body.shape.size.x / 2),
+          body.position.y - (body.shape.size.y / 2),
+          body.shape.size.x,
+          body.shape.size.y,
+			  )
+			  ctx.stroke()
 			} else {
 				console.error("unknown shape: ")
 				console.error(body)
@@ -173,7 +187,7 @@
   		  // The max velocity that will still
   		  // make an effect to the line length
   		  const maxVel = 50
-  		  const lineLength = 30 * Math.min(magnitude / maxVel, 1)
+  		  const lineLength = 40 * Math.min(magnitude / maxVel, 1)
   		  ctx.lineTo(
   		    body.position.x + (normalized.x * lineLength),
           body.position.y + (normalized.y * lineLength),
