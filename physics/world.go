@@ -24,7 +24,7 @@ type World struct {
 	Config WorldConfig
 
 	// Manages the events in the world
-	Event event.EventManager
+	Event *event.EventManager
 
 	// Maps the id to the body
 	// in the world
@@ -119,6 +119,7 @@ func (w *World) Clone() *World {
 }
 
 // Runs the world at the given
+// fps. If fps is -1, it runs at max possible
 // fps
 func (w *World) Run(fps int) {
 	currTime := time.Now()
@@ -139,10 +140,12 @@ func (w *World) Run(fps int) {
 		w.Step(delta)
 
 		// Sleep and wait for next tick
-		time.Sleep(
-			time.Duration(1000.0/float64(fps))*time.Millisecond -
-				time.Duration(delta)*time.Millisecond,
-		)
+		if fps != -1 {
+			time.Sleep(
+				time.Duration(1000.0/float64(fps))*time.Millisecond -
+					time.Duration(delta)*time.Millisecond,
+			)
+		}
 	}
 	fmt.Println("World stopped")
 }

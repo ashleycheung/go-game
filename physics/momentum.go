@@ -21,6 +21,11 @@ func ApplyMomentum(collisions []Collision) {
 			continue
 		} else if b1.Static {
 			newVel2 = NewZeroVector()
+
+			// Collision with statics
+			// has not been correctly implemented
+			// yet
+
 			// // Uses the same formula as below
 			// // except finds the limit of mass1 approach infinity
 			// newVel2 = b2.Velocity.Subtract(
@@ -28,9 +33,12 @@ func ApplyMomentum(collisions []Collision) {
 			// 		b2.Velocity.Subtract(b1.Velocity).Dot(b2.Position.Subtract(b1.Position)) /
 			// 			b2.Position.DistanceSquaredTo(b1.Position) * 2,
 			// 	))
-
 		} else if b2.Static {
 			newVel1 = NewZeroVector()
+
+			// Collision with statics
+			// has not been correctly implemented
+			// yet
 
 			// // Uses the same formula as below
 			// // except finds the limit of mass2 approach infinity

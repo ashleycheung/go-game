@@ -7,7 +7,6 @@ import (
 
 func main() {
 	w := physics.NewWorld()
-	w.Config.Gravity.Y = 200
 
 	b1 := physics.NewBody(physics.Circle{Radius: 20})
 	b1.Position = physics.Vector{X: 140, Y: 500}
@@ -31,9 +30,10 @@ func main() {
 	// b5.Static = true
 	w.AddBody(b5)
 
-	// b6 := physics.NewBody(physics.Rectangle{Size: physics.Vector{X: 40, Y: 100}})
-	// b6.Position = physics.Vector{X: 300, Y: 140}
-	// w.AddBody(b6)
+	b6 := physics.NewBody(physics.Rectangle{Size: physics.Vector{X: 40, Y: 100}})
+	b6.Position = physics.Vector{X: 230, Y: 300}
+	b6.Static = true
+	w.AddBody(b6)
 
 	b7 := physics.NewBody(physics.Rectangle{Size: physics.Vector{X: 1500, Y: 100}})
 	b7.Position = physics.Vector{X: 600, Y: 600}

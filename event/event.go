@@ -2,8 +2,8 @@ package event
 
 import "fmt"
 
-func NewEventManager() EventManager {
-	return EventManager{
+func NewEventManager() *EventManager {
+	return &EventManager{
 		listeners: map[string]map[int]EventListener{},
 	}
 }

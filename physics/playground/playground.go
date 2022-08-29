@@ -108,7 +108,7 @@ func msgHandler(
 
 		// Start world
 		go func() {
-			playground.world.Run(60)
+			playground.world.Run(-1)
 			removeListener()
 		}()
 		return nil
