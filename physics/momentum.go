@@ -20,22 +20,25 @@ func ApplyMomentum(collisions []Collision) {
 		if b1.Static && b2.Static {
 			continue
 		} else if b1.Static {
-			// Uses the same formula as below
-			// except finds the limit of mass1 approach infinity
-			newVel2 = b2.Velocity.Subtract(
-				b2.Position.Subtract(b1.Position).Scale(
-					b2.Velocity.Subtract(b1.Velocity).Dot(b2.Position.Subtract(b1.Position)) /
-						b2.Position.DistanceSquaredTo(b1.Position) * 2,
-				))
+			newVel2 = NewZeroVector()
+			// // Uses the same formula as below
+			// // except finds the limit of mass1 approach infinity
+			// newVel2 = b2.Velocity.Subtract(
+			// 	b2.Position.Subtract(b1.Position).Scale(
+			// 		b2.Velocity.Subtract(b1.Velocity).Dot(b2.Position.Subtract(b1.Position)) /
+			// 			b2.Position.DistanceSquaredTo(b1.Position) * 2,
+			// 	))
 
 		} else if b2.Static {
-			// Uses the same formula as below
-			// except finds the limit of mass2 approach infinity
-			newVel1 = b1.Velocity.Subtract(
-				b1.Position.Subtract(b2.Position).Scale(
-					b1.Velocity.Subtract(b2.Velocity).Dot(b1.Position.Subtract(b2.Position)) /
-						b1.Position.DistanceSquaredTo(b2.Position) * 2,
-				))
+			newVel1 = NewZeroVector()
+
+			// // Uses the same formula as below
+			// // except finds the limit of mass2 approach infinity
+			// newVel1 = b1.Velocity.Subtract(
+			// 	b1.Position.Subtract(b2.Position).Scale(
+			// 		b1.Velocity.Subtract(b2.Velocity).Dot(b1.Position.Subtract(b2.Position)) /
+			// 			b1.Position.DistanceSquaredTo(b2.Position) * 2,
+			// 	))
 
 		} else {
 			// Implemented using the formula

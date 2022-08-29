@@ -2,7 +2,8 @@ package physics
 
 func DefaultWorldConfig() WorldConfig {
 	return WorldConfig{
-		AirResistance: 10,
+		AirResistance: 50,
+		Gravity:       NewZeroVector(),
 	}
 }
 
@@ -17,4 +18,12 @@ type WorldConfig struct {
 	// The formula for velocity decrease is
 	// airResistance x body.DragCoefficient
 	AirResistance float64
+
+	// The gravity vector to apply
+	// to the velocity of every nom static body
+	// each second. The gravity vector is
+	// added to the velocity of the body.
+	// So a positive gravity will make
+	// the body go down
+	Gravity Vector
 }

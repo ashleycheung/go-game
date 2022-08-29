@@ -73,13 +73,21 @@ func (b *Body) Step(delta float64) {
 	// Updates velocity
 	b.Velocity = b.Velocity.Add(b.Acceleration.Scale(delta / 1000))
 
+	// Apply gravity
+	// if not static
+	if b.world != nil && !b.world.Config.Gravity.IsZero() && !b.Static {
+		b.Velocity = b.Velocity.Add(b.world.Config.Gravity.Scale(delta / 1000))
+	}
+
 	// Apply air resistance
 	if b.world != nil &&
 		b.world.Config.AirResistance != 0 &&
 		!b.Velocity.IsZero() {
 
 		// The amount to resist in this time frame
-		airResistAmount := b.DragCoefficient * b.world.Config.AirResistance * delta / 1000
+		airResistAmount := b.DragCoefficient *
+			b.world.Config.AirResistance *
+			delta / 1000
 
 		// If the air resistance is more than
 		// the current velocity magnitude

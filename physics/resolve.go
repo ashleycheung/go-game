@@ -83,25 +83,58 @@ func CircleRectangleResolution(circleBody, rectBody *Body) {
 	// Move along the axis with the least overlap
 	if xOverlap < yOverlap {
 		if circleBody.Position.X < rectBody.Position.X {
-			circleBody.Position = circleBody.Position.Subtract(Vector{X: xOverlap / 2})
-			rectBody.Position = rectBody.Position.Add(Vector{X: xOverlap / 2})
+			// Circle is left of rectangle
+			if circleBody.Static {
+				rectBody.Position = rectBody.Position.Add(Vector{X: xOverlap})
+			} else if rectBody.Static {
+				circleBody.Position = circleBody.Position.Subtract(Vector{X: xOverlap})
+			} else {
+				circleBody.Position = circleBody.Position.Subtract(Vector{X: xOverlap / 2})
+				rectBody.Position = rectBody.Position.Add(Vector{X: xOverlap / 2})
+			}
 		} else {
-			circleBody.Position = circleBody.Position.Add(Vector{X: xOverlap / 2})
-			rectBody.Position = rectBody.Position.Subtract(Vector{X: xOverlap / 2})
+			// Circle is right of rectangle
+			if circleBody.Static {
+				rectBody.Position = rectBody.Position.Subtract(Vector{X: xOverlap})
+			} else if rectBody.Static {
+				circleBody.Position = circleBody.Position.Add(Vector{X: xOverlap})
+			} else {
+				circleBody.Position = circleBody.Position.Add(Vector{X: xOverlap / 2})
+				rectBody.Position = rectBody.Position.Subtract(Vector{X: xOverlap / 2})
+			}
 		}
 	} else {
+		// Circle on top of rectangle
 		if circleBody.Position.Y < rectBody.Position.Y {
-			circleBody.Position = circleBody.Position.Subtract(Vector{Y: yOverlap / 2})
-			rectBody.Position = rectBody.Position.Add(Vector{Y: yOverlap / 2})
+			if circleBody.Static {
+				rectBody.Position = rectBody.Position.Add(Vector{Y: yOverlap})
+			} else if rectBody.Static {
+				circleBody.Position = circleBody.Position.Subtract(Vector{Y: yOverlap})
+			} else {
+				circleBody.Position = circleBody.Position.Subtract(Vector{Y: yOverlap / 2})
+				rectBody.Position = rectBody.Position.Add(Vector{Y: yOverlap / 2})
+			}
 		} else {
-			circleBody.Position = circleBody.Position.Add(Vector{Y: yOverlap / 2})
-			rectBody.Position = rectBody.Position.Subtract(Vector{Y: yOverlap / 2})
+			// Circle under rectangle
+			if circleBody.Static {
+				rectBody.Position = rectBody.Position.Subtract(Vector{Y: yOverlap})
+			} else if rectBody.Static {
+				circleBody.Position = circleBody.Position.Add(Vector{Y: yOverlap})
+			} else {
+				circleBody.Position = circleBody.Position.Add(Vector{Y: yOverlap / 2})
+				rectBody.Position = rectBody.Position.Subtract(Vector{Y: yOverlap / 2})
+			}
 		}
 	}
 }
 
 // Resolves collision between two rectangles
 func RectangleRectangleResolution(b1, b2 *Body) {
+	// If both static, there is no resolution
+	if b1.Static && b2.Static {
+		return
+	}
+
 	b1Rect := b1.Shape.(Rectangle)
 	b2Rect := b2.Shape.(Rectangle)
 
@@ -111,19 +144,47 @@ func RectangleRectangleResolution(b1, b2 *Body) {
 	// Move along the axis with the least overlap
 	if xOverlap < yOverlap {
 		if b1.Position.X < b2.Position.X {
-			b1.Position = b1.Position.Subtract(Vector{X: xOverlap / 2})
-			b2.Position = b2.Position.Add(Vector{X: xOverlap / 2})
+			// b1 is on the left side of b2
+			if b1.Static {
+				b2.Position = b2.Position.Add(Vector{X: xOverlap})
+			} else if b2.Static {
+				b1.Position = b1.Position.Subtract(Vector{X: xOverlap})
+			} else {
+				b1.Position = b1.Position.Subtract(Vector{X: xOverlap / 2})
+				b2.Position = b2.Position.Add(Vector{X: xOverlap / 2})
+			}
 		} else {
-			b1.Position = b1.Position.Add(Vector{X: xOverlap / 2})
-			b2.Position = b2.Position.Subtract(Vector{X: xOverlap / 2})
+			// b2 is on the left side of b1
+			if b1.Static {
+				b2.Position = b2.Position.Subtract(Vector{X: xOverlap})
+			} else if b2.Static {
+				b1.Position = b1.Position.Add(Vector{X: xOverlap})
+			} else {
+				b1.Position = b1.Position.Add(Vector{X: xOverlap / 2})
+				b2.Position = b2.Position.Subtract(Vector{X: xOverlap / 2})
+			}
 		}
 	} else {
 		if b1.Position.Y < b2.Position.Y {
-			b1.Position = b1.Position.Subtract(Vector{Y: yOverlap / 2})
-			b2.Position = b2.Position.Add(Vector{Y: yOverlap / 2})
+			// b1 is on top of b2
+			if b1.Static {
+				b2.Position = b2.Position.Add(Vector{Y: yOverlap})
+			} else if b2.Static {
+				b1.Position = b1.Position.Subtract(Vector{Y: yOverlap})
+			} else {
+				b1.Position = b1.Position.Subtract(Vector{Y: yOverlap / 2})
+				b2.Position = b2.Position.Add(Vector{Y: yOverlap / 2})
+			}
 		} else {
-			b1.Position = b1.Position.Add(Vector{Y: yOverlap / 2})
-			b2.Position = b2.Position.Subtract(Vector{Y: yOverlap / 2})
+			// b1 is below b2
+			if b1.Static {
+				b2.Position = b2.Position.Subtract(Vector{Y: yOverlap})
+			} else if b2.Static {
+				b1.Position = b1.Position.Add(Vector{Y: yOverlap})
+			} else {
+				b1.Position = b1.Position.Add(Vector{Y: yOverlap / 2})
+				b2.Position = b2.Position.Subtract(Vector{Y: yOverlap / 2})
+			}
 		}
 	}
 }
