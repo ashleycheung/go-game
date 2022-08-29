@@ -81,6 +81,27 @@
     const canvas = document.querySelector("#physics-canvas")
     const ctx = canvas.getContext("2d")
     
+    class FpsTracker {
+      constructor() {
+        this.stateReceivedNum = 0
+        this.lastStateTime = performance.now()
+        this.fps = 0
+      }
+      
+      onStateReceived() {
+        this.stateReceivedNum++
+        if (this.stateReceivedNum > 5) {
+          const currTime = performance.now()
+          const delta = currTime - this.lastStateTime
+          this.fps = this.stateReceivedNum / (delta / 1000)
+          this.stateReceivedNum = 0
+          this.lastStateTime = currTime
+        }
+      }
+    }
+        
+    const fpsTrack = new FpsTracker()
+        
     // Sets up the canvas width and height
     const setUpCanvas = () => {
       const setSize = () => {
@@ -133,11 +154,19 @@
       msgData = JSON.parse(msg)
       switch (msgData.name) {
         case "state":
+          fpsTrack.onStateReceived()
+                    
           // Clear canvas
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           for (const b of msgData.data) {
             drawBody(b)
           }
+          
+          // Write fps
+          ctx.fillStyle = "white"
+          ctx.font = "30px Comic Sans MS";
+          ctx.fillText(fpsTrack.fps, 10, 50)
+          
           return
         default:
           console.error(`Invalid msg name ${msg.name}`)

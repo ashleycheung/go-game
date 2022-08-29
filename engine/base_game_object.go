@@ -89,12 +89,13 @@ func (g *BaseGameObject) RemoveChild(o GameObject) {
 	if g.World != nil {
 		objIter := NewBFSIterator(o)
 		for objIter.HasNext() {
-			// Remove world reference
 			nextObj := objIter.Next()
-			nextObj.SetWorld(nil)
 
 			// Call exit event
 			nextObj.GetEventManager().EmitEvent(event.Event{Name: string(OnSceneExit)})
+
+			// Remove world reference
+			nextObj.SetWorld(nil)
 		}
 	}
 	// Remove the child
