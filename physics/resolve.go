@@ -17,6 +17,11 @@ func Resolve(collisions []Collision) {
 			continue
 		}
 
+		// If any of them are sensors dont resolve
+		if c.B1.Sensor || c.B2.Sensor {
+			continue
+		}
+
 		// Pass to their respective resolver
 		body1ShapeType := c.B1.Shape.GetType()
 		body2ShapeType := c.B2.Shape.GetType()

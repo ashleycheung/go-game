@@ -8,11 +8,13 @@ import (
 )
 
 func NewWorld() *World {
-	return &World{
+	w := &World{
 		bodies: map[int]*Body{},
 		Event:  event.NewEventManager(),
 		Config: DefaultWorldConfig(),
 	}
+	w.QuadTree = NewQuadTree(BBox{}, DefaultSplitAmount, DefaultMaxDepth)
+	return w
 }
 
 type World struct {
@@ -32,6 +34,9 @@ type World struct {
 
 	// Whether the world is running or not
 	running bool
+
+	// Saves the last quadtree in the world
+	QuadTree *QuadTree
 }
 
 // Adds a body into the world

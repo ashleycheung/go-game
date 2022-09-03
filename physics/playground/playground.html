@@ -152,13 +152,29 @@
     
     const msgHandler = (msg) => {
       msgData = JSON.parse(msg)
+      
       switch (msgData.name) {
         case "state":
           fpsTrack.onStateReceived()
                     
           // Clear canvas
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          for (const b of msgData.data) {
+          
+          // Draw quadtree
+          ctx.fillStyle = "white"
+          for (const region of msgData.data.regions) {
+            ctx.beginPath()
+            ctx.rect(
+              region.topLeft.x,
+              region.topLeft.y,
+              region.bottomRight.x - region.topLeft.x,
+              region.bottomRight.y - region.topLeft.y,
+            )
+            ctx.stroke()
+          }
+          
+          // Draw bodies
+          for (const b of msgData.data.bodies) {
             drawBody(b)
           }
           

@@ -74,11 +74,19 @@ type SocketPacket struct {
 	Data any    `json:"data"`
 }
 
+type StatePacket struct {
+	Bodies  []*physics.Body `json:"bodies"`
+	Regions []physics.BBox  `json:"regions"`
+}
+
 func sendState(world *physics.World, msgType int, ws *websocket.Conn) error {
 	bodies := world.Bodies()
 	r := SocketPacket{
 		Name: "state",
-		Data: bodies,
+		Data: StatePacket{
+			Bodies:  bodies,
+			Regions: world.QuadTree.GetBBoxes(),
+		},
 	}
 	jsonStr, err := json.Marshal(r)
 	if err != nil {
@@ -108,7 +116,7 @@ func msgHandler(
 
 		// Start world
 		go func() {
-			playground.world.Run(-1)
+			playground.world.Run(100)
 			removeListener()
 		}()
 		return nil

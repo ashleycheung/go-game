@@ -3,6 +3,8 @@ package physics
 import (
 	"fmt"
 	"math"
+
+	"github.com/ashleycheung/go-game/event"
 )
 
 // Creates a new body with a unique id.
@@ -12,6 +14,7 @@ func NewBody(shape Shape) *Body {
 		Id:               0,
 		Shape:            shape,
 		Mass:             1,
+		event:            event.NewEventManager(),
 		DragCoefficient:  1,
 		CollisionBodyIds: map[int]bool{},
 	}
@@ -34,6 +37,9 @@ type Body struct {
 	// The position of the body
 	Position Vector `json:"position"`
 
+	// Manages event
+	event *event.EventManager
+
 	// Velocity in units per second
 	Velocity Vector `json:"velocity"`
 
@@ -46,6 +52,10 @@ type Body struct {
 	// having a normal effect. A drag coefficent of 0
 	// means the air resistance has no effect
 	DragCoefficient float64 `json:"dragCoefficient"`
+
+	// If set to true, this
+	// simply passes through the target body
+	Sensor bool
 
 	// If set to true, this body can't
 	// be knocked back
@@ -109,4 +119,25 @@ func (b *Body) Step(delta float64) {
 func (b *Body) Clone() *Body {
 	clonedBody := *b
 	return &clonedBody
+}
+
+// Returns the event manager
+func (b *Body) GetEvent() *event.EventManager {
+	return b.event
+}
+
+type BodyEvent string
+
+const (
+	// Called when a body collides with another body
+	// and returns that body.
+	BodyCollideEvent BodyEvent = "bodycollide"
+)
+
+// Returned in the data field
+// during the body collision event
+type BodyCollideEventData struct {
+	// Pointer to the body
+	// of the collision
+	TargetBody *Body
 }

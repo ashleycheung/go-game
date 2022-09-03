@@ -8,6 +8,11 @@ func ApplyMomentum(collisions []Collision) {
 		b1 := c.B1
 		b2 := c.B2
 
+		// Sensors so no momentum
+		if b1.Sensor || b2.Sensor {
+			continue
+		}
+
 		// If positions are the same
 		// we cant calculate momentum
 		if b1.Position.DistanceSquaredTo(b2.Position) == 0 {

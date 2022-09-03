@@ -3,6 +3,8 @@ package physics
 import (
 	"fmt"
 	"math"
+
+	"github.com/ashleycheung/go-game/event"
 )
 
 // Represents a collision
@@ -20,13 +22,24 @@ type Collision struct {
 func FindCollisions(w *World) []Collision {
 	bodies := w.Bodies()
 
+	// Build quadtree
+	w.QuadTree = NewQuadTreeFromBodies(bodies, w.QuadTree.splitAmount, w.QuadTree.maxDepth)
+
 	outCollisions := []Collision{}
 
 	// Compare all bodies
 	for i := 0; i < len(bodies); i++ {
-		for j := i + 1; j < len(bodies); j++ {
-			body1 := bodies[i]
-			body2 := bodies[j]
+		// Get neighbours
+		body1 := bodies[i]
+		neighbours := w.QuadTree.GetNeighbours(body1)
+
+		// Check if colliding with neighbours
+		for _, body2 := range neighbours {
+			// If they already have collided ignore
+			if body1.CollisionBodyIds[body2.Id] {
+				continue
+			}
+
 			body1ShapeType := body1.Shape.GetType()
 			body2ShapeType := body2.Shape.GetType()
 			var doesCollide bool
@@ -73,6 +86,28 @@ func FindCollisions(w *World) []Collision {
 			}
 		}
 	}
+
+	// For each pair of collisions
+	// call the event
+	for _, c := range outCollisions {
+		// Call b1 event
+		c.B1.GetEvent().EmitEvent(event.Event{
+			Name: string(BodyCollideEvent),
+			Data: BodyCollideEventData{
+				TargetBody: c.B2,
+			},
+		})
+
+		// Call b2 event
+		c.B2.GetEvent().EmitEvent(event.Event{
+			Name: string(BodyCollideEvent),
+			Data: BodyCollideEventData{
+				TargetBody: c.B1,
+			},
+		})
+
+	}
+
 	return outCollisions
 }
 

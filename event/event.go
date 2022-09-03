@@ -16,7 +16,11 @@ type EventManager struct {
 }
 
 type Event struct {
+	// Name of the event
 	Name string
+	// Contains any additional
+	// data to the event
+	Data any
 }
 
 type EventListener func(e Event) error
