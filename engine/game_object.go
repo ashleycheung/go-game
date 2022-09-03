@@ -1,4 +1,3 @@
-// Game object in the engine
 package engine
 
 import "github.com/ashleycheung/go-game/event"
@@ -22,6 +21,16 @@ type GameObject interface {
 
 	// Removes a child
 	RemoveChild(o GameObject)
+
+	// Adds this object to a given group
+	AddToGroup(groupName string)
+
+	// Removes this object from a given group
+	RemoveFromGroup(groupName string)
+
+	// Returns all the groups this object
+	// is a part of
+	GetGroups() []string
 
 	// Returns whether the game object has
 	// been assigned a unique id yet. Essentially
@@ -50,14 +59,16 @@ type GameObject interface {
 
 // Creates a new game object
 func NewGameObject() GameObject {
-	obj := &BaseGameObject{}
-	InitGameObject(obj)
+	obj := &baseGameObject{}
+	obj.groupsSet = map[string]bool{}
+	initGameObject(obj)
 	return obj
 }
 
 // Initialises the private properties of
-// the game object
-func InitGameObject(o GameObject) {
+// the game object.
+// Internal use only
+func initGameObject(o GameObject) {
 	o.SetChildren([]GameObject{})
 	o.SetEventManager(event.NewEventManager())
 }

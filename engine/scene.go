@@ -1,12 +1,12 @@
 package engine
 
 type Scene struct {
-	BaseGameObject
+	baseGameObject
 }
 
 func NewScene(world *GameWorld) *Scene {
 	obj := &Scene{}
-	InitGameObject(obj)
+	initGameObject(obj)
 	obj.SetWorld(world)
 	return obj
 }
@@ -14,7 +14,7 @@ func NewScene(world *GameWorld) *Scene {
 // Iterates through the children
 // and steps them
 func (s *Scene) Step(delta float64) {
-	objIter := NewBFSIterator(s)
+	objIter := newBFSIterator(s)
 	for objIter.HasNext() {
 		nextObj := objIter.Next()
 		if nextObj != s {

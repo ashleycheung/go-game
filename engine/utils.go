@@ -1,6 +1,6 @@
 package engine
 
-type GameObjectIterator interface {
+type gameObjectIterator interface {
 	// Returns whether there is
 	// a next game object
 	HasNext() bool
@@ -10,21 +10,21 @@ type GameObjectIterator interface {
 	Next() GameObject
 }
 
-type BFSIterator struct {
+type bFSIterator struct {
 	queue []GameObject
 }
 
-func NewBFSIterator(root GameObject) GameObjectIterator {
-	return &BFSIterator{
+func newBFSIterator(root GameObject) gameObjectIterator {
+	return &bFSIterator{
 		queue: []GameObject{root},
 	}
 }
 
-func (i *BFSIterator) HasNext() bool {
+func (i *bFSIterator) HasNext() bool {
 	return len(i.queue) != 0
 }
 
-func (i *BFSIterator) Next() GameObject {
+func (i *bFSIterator) Next() GameObject {
 	// Pop next
 	nextObj := i.queue[0]
 	i.queue[0] = nil

@@ -21,7 +21,7 @@ func TestGameObjectIterator(t *testing.T) {
 	child1.AddChild(grandchild2)
 	child2.AddChild(grandchild3)
 
-	iter := NewBFSIterator(root)
+	iter := newBFSIterator(root)
 
 	if iter.Next() != root {
 		t.Error("wrong node")

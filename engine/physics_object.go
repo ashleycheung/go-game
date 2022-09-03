@@ -6,7 +6,7 @@ import (
 )
 
 type PhysicsObject struct {
-	BaseGameObject
+	baseGameObject
 	Body *physics.Body
 }
 
@@ -15,8 +15,10 @@ func NewPhysicsObject(shape physics.Shape) *PhysicsObject {
 		Body: physics.NewBody(shape),
 	}
 
+	obj.groupsSet = map[string]bool{}
+
 	// Initialise game object
-	InitGameObject(obj)
+	initGameObject(obj)
 
 	// On enter add physics body
 	obj.GetEventManager().
