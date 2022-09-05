@@ -7,16 +7,16 @@ type gameObjectIterator interface {
 
 	// Returns the next game object.
 	// Panics if there is no next object
-	Next() GameObject
+	Next() *GameObject
 }
 
 type bFSIterator struct {
-	queue []GameObject
+	queue []*GameObject
 }
 
-func newBFSIterator(root GameObject) gameObjectIterator {
+func newBFSIterator(root *GameObject) gameObjectIterator {
 	return &bFSIterator{
-		queue: []GameObject{root},
+		queue: []*GameObject{root},
 	}
 }
 
@@ -24,7 +24,7 @@ func (i *bFSIterator) HasNext() bool {
 	return len(i.queue) != 0
 }
 
-func (i *bFSIterator) Next() GameObject {
+func (i *bFSIterator) Next() *GameObject {
 	// Pop next
 	nextObj := i.queue[0]
 	i.queue[0] = nil

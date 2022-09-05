@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ashleycheung/go-game/event"
 	"github.com/ashleycheung/go-game/physics"
 )
 
@@ -13,9 +14,12 @@ type GameWorld struct {
 	// game world is up to
 	idIncrement int
 
+	// Game world specific events
+	Event *event.EventManager
+
 	// The scene is the root
 	// of the game tree
-	Scene *Scene
+	Scene *GameObject
 
 	// Physics world
 	Physics *physics.World
@@ -25,14 +29,14 @@ type GameWorld struct {
 
 	// Maps the group name to a set of
 	// game objects
-	groupsMap map[string]map[GameObject]bool
+	groupsMap map[string]map[*GameObject]bool
 }
 
 // Return a slice of all the group objects that
 // belong in the given group. This operation is extremely fast
 // as it is cached. O(g) where g is the number of objects in the group
-func (w *GameWorld) GetGroupObjects(groupName string) []GameObject {
-	groupObjects := []GameObject{}
+func (w *GameWorld) GetGroupObjects(groupName string) []*GameObject {
+	groupObjects := []*GameObject{}
 	groupSet, exists := w.groupsMap[groupName]
 	if exists {
 		for o := range groupSet {
@@ -44,12 +48,12 @@ func (w *GameWorld) GetGroupObjects(groupName string) []GameObject {
 
 // Internal use
 // called by the object itself to add to world
-func (w *GameWorld) addObjectToGroup(obj GameObject, groupName string) {
+func (w *GameWorld) addObjectToGroup(obj *GameObject, groupName string) {
 	groupSet, exists := w.groupsMap[groupName]
 	if exists {
 		groupSet[obj] = true
 	} else {
-		w.groupsMap[groupName] = map[GameObject]bool{
+		w.groupsMap[groupName] = map[*GameObject]bool{
 			obj: true,
 		}
 	}
@@ -57,7 +61,7 @@ func (w *GameWorld) addObjectToGroup(obj GameObject, groupName string) {
 
 // Internal use
 // called by object to remove from world
-func (w *GameWorld) removeObjectFromGroup(obj GameObject, groupName string) {
+func (w *GameWorld) removeObjectFromGroup(obj *GameObject, groupName string) {
 	groupSet, exists := w.groupsMap[groupName]
 	if exists {
 		delete(groupSet, obj)
@@ -66,6 +70,7 @@ func (w *GameWorld) removeObjectFromGroup(obj GameObject, groupName string) {
 
 // Game world step
 func (w *GameWorld) Step(delta float64) {
+	w.Event.EmitEvent(event.Event{Name: string(BeforeGameStepEvent)})
 	// Increment scene
 	w.Scene.Step(delta)
 	// Update physics
@@ -101,14 +106,25 @@ func (w *GameWorld) Run(fps int) {
 			)
 		}
 	}
-	fmt.Println("World stopped")
+}
+
+// Stops the game world
+func (w *GameWorld) Stop() {
+	w.running = false
 }
 
 // Creates a new game world
 func NewGameWorld() *GameWorld {
-	w := &GameWorld{}
-	w.groupsMap = map[string]map[GameObject]bool{}
+	w := &GameWorld{
+		Event: event.NewEventManager(),
+	}
+	w.groupsMap = map[string]map[*GameObject]bool{}
 	w.Scene = NewScene(w)
 	w.Physics = physics.NewWorld()
 	return w
 }
+
+const (
+	// Runs before all game steps
+	BeforeGameStepEvent GameEvent = "beforeGameStep"
+)

@@ -1,23 +1,26 @@
 package engine
 
-type Scene struct {
-	baseGameObject
+func NewScene(world *GameWorld) *GameObject {
+	obj := NewGameObject()
+	obj.World = world
+	obj.AddComponent("scene", &SceneComponent{
+		obj: obj,
+	})
+	return obj
 }
 
-func NewScene(world *GameWorld) *Scene {
-	obj := &Scene{}
-	initGameObject(obj)
-	obj.SetWorld(world)
-	return obj
+type SceneComponent struct {
+	BaseComponent
+	obj *GameObject
 }
 
 // Iterates through the children
 // and steps them
-func (s *Scene) Step(delta float64) {
-	objIter := newBFSIterator(s)
+func (s *SceneComponent) Step(delta float64) {
+	objIter := newBFSIterator(s.obj)
 	for objIter.HasNext() {
 		nextObj := objIter.Next()
-		if nextObj != s {
+		if nextObj != s.obj {
 			nextObj.Step(delta)
 		}
 	}

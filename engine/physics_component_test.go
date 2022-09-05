@@ -11,7 +11,8 @@ import (
 // and removes itself when exiting
 // game world
 func TestPhysicsObject(t *testing.T) {
-	o := NewPhysicsObject(physics.Circle{Radius: 5})
+	o := NewGameObject()
+	o.AddComponent("physics", NewPhysicsComponent(physics.Circle{Radius: 5}))
 	w := NewGameWorld()
 	w.Scene.AddChild(o)
 	if len(w.Physics.Bodies()) != 1 {
