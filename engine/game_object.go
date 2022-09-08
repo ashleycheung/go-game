@@ -153,6 +153,8 @@ func (g *GameObject) GetChildren() []*GameObject {
 // it is overriden
 func (g *GameObject) AddComponent(name string, component Component) {
 	g.components[name] = component
+	component.setGameObject(g)
+	component.OnGameObjectAttach()
 }
 
 // Removes the component of the given name
@@ -160,10 +162,13 @@ func (g *GameObject) RemoveComponent(name string) {
 	delete(g.components, name)
 }
 
-// Gets a component of the given name
-func (g *GameObject) GetComponent(name string) (c Component, exists bool) {
-	c, exists = g.components[name]
-	return
+// Gets a component of the given name, Returns nil if it doesnt exist
+func (g *GameObject) GetComponent(name string) (c Component) {
+	c, exists := g.components[name]
+	if !exists {
+		return nil
+	}
+	return c
 }
 
 // Adds object to a given group

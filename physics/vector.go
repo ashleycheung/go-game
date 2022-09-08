@@ -24,6 +24,14 @@ func NewZeroVector() Vector {
 	}
 }
 
+// Create a new vector with given angle and magnitude
+func NewVector(angle, magnitude float64) Vector {
+	return Vector{
+		X: math.Cos(angle) * magnitude,
+		Y: math.Sin(angle) * magnitude,
+	}
+}
+
 // Multiplies another vector element wise
 func (v Vector) ElementMultiply(v2 Vector) Vector {
 	return Vector{

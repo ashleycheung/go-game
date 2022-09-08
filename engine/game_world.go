@@ -30,6 +30,26 @@ type GameWorld struct {
 	// Maps the group name to a set of
 	// game objects
 	groupsMap map[string]map[*GameObject]bool
+
+	// Stores a slice of functions to call
+	// at the next tick
+	funcQueue []func()
+}
+
+// Queues a function to be called at the start
+// of the next tick. This is needed to prevent
+// concurrent write errors
+func (w *GameWorld) QueueFunction(f func()) {
+	w.funcQueue = append(w.funcQueue, f)
+}
+
+// Process the functions in the queue
+func (w *GameWorld) processFunctions() {
+	currQueue := w.funcQueue
+	w.funcQueue = []func(){}
+	for _, f := range currQueue {
+		f()
+	}
 }
 
 // Return a slice of all the group objects that
@@ -70,11 +90,16 @@ func (w *GameWorld) removeObjectFromGroup(obj *GameObject, groupName string) {
 
 // Game world step
 func (w *GameWorld) Step(delta float64) {
+	// Start step
 	w.Event.EmitEvent(event.Event{Name: string(BeforeGameStepEvent)})
+	// Process functions
+	w.processFunctions()
 	// Increment scene
 	w.Scene.Step(delta)
 	// Update physics
 	w.Physics.Step(delta)
+	// Emit step finish event
+	w.Event.EmitEvent(event.Event{Name: string(AfterGameStepEvent)})
 }
 
 // Runs the world at the given fps.
@@ -116,7 +141,8 @@ func (w *GameWorld) Stop() {
 // Creates a new game world
 func NewGameWorld() *GameWorld {
 	w := &GameWorld{
-		Event: event.NewEventManager(),
+		Event:     event.NewEventManager(),
+		funcQueue: []func(){},
 	}
 	w.groupsMap = map[string]map[*GameObject]bool{}
 	w.Scene = NewScene(w)
@@ -124,7 +150,11 @@ func NewGameWorld() *GameWorld {
 	return w
 }
 
+// Events that
+// are called by the game world
 const (
-	// Runs before all game steps
+	// Runs before all game steps by the world
 	BeforeGameStepEvent GameEvent = "beforeGameStep"
+	// Called after the game step finishes
+	AfterGameStepEvent GameEvent = "afterGameStepEvent"
 )
