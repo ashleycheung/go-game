@@ -82,6 +82,32 @@ func CircleRectangleResolution(circleBody, rectBody *Body) {
 	circle := circleBody.Shape.(Circle)
 	rect := rectBody.Shape.(Rectangle)
 
+	// Nearest point in the rectangle to the center
+	// of the circle
+	nearestRectPoint := circleBody.Position.Clamp(RectToBBox(rectBody.Position, rect))
+
+	// Circle center is outside of rectangle
+	if nearestRectPoint != circleBody.Position {
+		// Vector from circle center
+		// to nearest point on rect edge
+		penDir := nearestRectPoint.Subtract(circleBody.Position)
+		// The vector of penetration
+		penetrationVec := penDir.Normalize().Scale(circle.Radius - penDir.Magnitude())
+		if circleBody.Static {
+			// Only move rectangle
+			rectBody.Position = rectBody.Position.Add(penetrationVec)
+		} else if rectBody.Static {
+			circleBody.Position = circleBody.Position.Subtract(penetrationVec)
+		} else {
+			// Half it
+			rectBody.Position = rectBody.Position.Add(penetrationVec.Scale(0.5))
+			circleBody.Position = circleBody.Position.Subtract(penetrationVec.Scale(0.5))
+		}
+		return
+	}
+
+	// Circle center lies inside the rectangle
+	// so treat it like a rectangle in resolution
 	xOverlap := circle.Radius + rect.Size.X/2 - math.Abs(circleBody.Position.X-rectBody.Position.X)
 	yOverlap := circle.Radius + rect.Size.Y/2 - math.Abs(circleBody.Position.Y-rectBody.Position.Y)
 

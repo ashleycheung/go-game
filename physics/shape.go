@@ -50,6 +50,15 @@ func (r Rectangle) String() string {
 	return fmt.Sprintf("Rectangle: width %f, height: %f", r.Size.X, r.Size.Y)
 }
 
+// Converts a retangle into a bbox
+func RectToBBox(position Vector, rect Rectangle) BBox {
+	tl, br := RectangleCorners(position, rect)
+	return BBox{
+		TopLeft:     tl,
+		BottomRight: br,
+	}
+}
+
 // Utility function to return the corners of a rectangle
 func RectangleCorners(position Vector, rect Rectangle) (topLeft, bottomRight Vector) {
 	topLeft = position.Subtract(rect.Size.Scale(0.5))

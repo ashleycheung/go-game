@@ -195,3 +195,8 @@ func (g *GameObject) GetGroups() []string {
 	}
 	return outGroups
 }
+
+// Returns whether the game object is part of the given group
+func (g *GameObject) InGroup(groupName string) bool {
+	return g.groupsSet[groupName]
+}

@@ -116,3 +116,11 @@ func (v Vector) Dot(v2 Vector) float64 {
 func (v Vector) IsZero() bool {
 	return v.X == 0 && v.Y == 0
 }
+
+// Clamps a vector within the given bbox
+func (v Vector) Clamp(bbox BBox) Vector {
+	return Vector{
+		X: math.Max(bbox.TopLeft.X, math.Min(bbox.BottomRight.X, v.X)),
+		Y: math.Max(bbox.TopLeft.Y, math.Min(bbox.BottomRight.Y, v.Y)),
+	}
+}
