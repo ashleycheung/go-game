@@ -66,6 +66,9 @@ type Body struct {
 	// colliding with
 	CollisionBodyIds map[int]bool `json:"collisionBodyIds"`
 
+	// Used to store any data wanted.
+	Metadata any `json:"metadata"`
+
 	// A Reference to the world
 	// the body is in
 	world *World

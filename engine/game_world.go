@@ -126,8 +126,7 @@ func (w *GameWorld) Run(fps int) {
 		// Sleep and wait for next tick
 		if fps != -1 {
 			time.Sleep(
-				time.Duration(1000.0/float64(fps))*time.Millisecond -
-					time.Duration(delta)*time.Millisecond,
+				time.Duration(1000.0/float64(fps)) * time.Millisecond,
 			)
 		}
 	}

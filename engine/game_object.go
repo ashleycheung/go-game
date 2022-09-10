@@ -81,6 +81,7 @@ func (g *GameObject) HasId() bool {
 // Adds a child to the tree
 // and give it an id if it doesn't exist
 func (g *GameObject) AddChild(o *GameObject) error {
+	o.Parent = g
 	// If this game object is already
 	// in the world add the given game object
 	// and all its children
@@ -141,6 +142,7 @@ func (g *GameObject) RemoveChild(o *GameObject) {
 		}
 	}
 	g.Children = newChildren
+	o.Parent = nil
 }
 
 // Gets all the children of the given object
