@@ -4,23 +4,28 @@ import "fmt"
 
 func NewEventManager() *EventManager {
 	return &EventManager{
-		listeners: map[string]map[int]EventListener{},
+		listeners:   map[string]map[int]EventListener{},
+		middlewares: []func(event Event) Event{},
 	}
 }
 
 type EventManager struct {
 	// Maps the event name to map of listener id
 	// to the listener
-	listeners   map[string]map[int]EventListener
+	listeners map[string]map[int]EventListener
+
+	// All middle wares for the event
+	middlewares []func(event Event) Event
+
 	idIncrement int
 }
 
 type Event struct {
 	// Name of the event
-	Name string
+	Name string `json:"name"`
 	// Contains any additional
 	// data to the event
-	Data any
+	Data any `json:"data"`
 }
 
 type EventListener func(e Event) error
@@ -50,7 +55,18 @@ func (e *EventManager) AddListener(
 	}
 }
 
+// Adds a middleware to the event manager
+func (e *EventManager) Middleware(fn func(event Event) Event) {
+	e.middlewares = append(e.middlewares, fn)
+}
+
 func (e *EventManager) EmitEvent(event Event) error {
+	// Parse through all middle wares
+	for _, fn := range e.middlewares {
+		event = fn(event)
+	}
+
+	// Call listeners
 	for _, listener := range e.listeners[event.Name] {
 		err := listener(event)
 		if err != nil {
