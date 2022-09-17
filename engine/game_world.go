@@ -120,13 +120,18 @@ func (w *GameWorld) Run(fps int) {
 		delta := float64(dif.Microseconds()) / 1000.0
 		currTime = newTime
 
+		startProcessTime := time.Now()
+
 		// Step world
 		w.Step(delta)
+
+		// The time it took to process the world
+		processingTime := time.Since(startProcessTime)
 
 		// Sleep and wait for next tick
 		if fps != -1 {
 			time.Sleep(
-				time.Duration(1000.0/float64(fps)) * time.Millisecond,
+				(time.Duration(1000.0/float64(fps)))*time.Millisecond - processingTime,
 			)
 		}
 	}
