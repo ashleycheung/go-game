@@ -4,6 +4,7 @@ import "github.com/ashleycheung/go-game/event"
 
 // Called when the timer finishes
 const OnTimerEndEvent = "onTimerEndEvent"
+const OnTimerStartEvent = "onTimerStartEvent"
 
 // Creates a new timer component
 func NewTimerComponent() *TimerComponent {
@@ -34,6 +35,10 @@ type TimerComponent struct {
 func (tC *TimerComponent) Start() {
 	tC.isRunning = true
 	tC.timePassed = 0
+	// Emit event
+	tC.Event.EmitEvent(event.Event{
+		Name: OnTimerStartEvent,
+	})
 }
 
 // Overrides

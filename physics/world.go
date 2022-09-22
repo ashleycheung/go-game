@@ -92,6 +92,11 @@ func (w *World) Step(delta float64) {
 		w.bodies[b.Id] = b
 	}
 
+	// Called before collision detection occurs
+	w.Event.EmitEvent(event.Event{
+		Name: string(BeforeCollisionDetectionEvent),
+	})
+
 	// Detect collision and continue
 	// to resolve until no more collisions occur
 	collisions := FindCollisions(w)
@@ -165,5 +170,6 @@ type WorldEvent string
 
 const (
 	// Called when a step has finished
-	StepEndEvent WorldEvent = "stepend"
+	StepEndEvent                  WorldEvent = "stepend"
+	BeforeCollisionDetectionEvent WorldEvent = "beforeCollisionDetection"
 )
