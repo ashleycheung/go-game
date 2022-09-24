@@ -3,8 +3,13 @@ package physics
 const DefaultSplitAmount = 5
 const DefaultMaxDepth = 20
 
+var repeatNum int
+
 // Creates a quad tree given a slice of bodies
 func NewQuadTreeFromBodies(bodies []*Body, splitAmount, maxDepth int) *QuadTree {
+
+	// Find the region where all the bodies
+	// currently fit in
 	region := BBox{}
 	for _, b := range bodies {
 		var bodyTopLeft Vector
@@ -60,7 +65,7 @@ func NewQuadTree(region BBox, splitAmount int, maxDepth int) *QuadTree {
 		maxDepth:          maxDepth,
 		bodyQuadTreeNodes: map[*Body]map[*QuadTreeNode]bool{},
 	}
-	tree.rootNode = NewQuadTreeNode(region, tree)
+	tree.rootNode = NewQuadTreeNode(region, tree, 0)
 	return tree
 }
 
@@ -87,7 +92,7 @@ func (qTree *QuadTree) GetBBoxes() []BBox {
 	bboxes := []BBox{}
 	var dfs func(node *QuadTreeNode)
 	dfs = func(node *QuadTreeNode) {
-		if !node.hasSplit {
+		if !node.hasAttemptedSplit {
 			bboxes = append(bboxes, node.Region)
 		} else {
 			dfs(node.topLeft)
@@ -100,7 +105,7 @@ func (qTree *QuadTree) GetBBoxes() []BBox {
 	return bboxes
 }
 
-// Adds abody into the tree
+// Adds a body into the tree
 func (qTree *QuadTree) AddBody(body *Body) {
 	qTree.rootNode.AddBody(body)
 }
@@ -149,11 +154,12 @@ func (qTree *QuadTree) removeCacheBodyToNode(body *Body, node *QuadTreeNode) {
 }
 
 // Creates a new quad tree node
-func NewQuadTreeNode(region BBox, tree *QuadTree) *QuadTreeNode {
+func NewQuadTreeNode(region BBox, tree *QuadTree, depth int) *QuadTreeNode {
 	return &QuadTreeNode{
 		bodies: map[*Body]bool{},
 		tree:   tree,
 		Region: region,
+		depth:  depth,
 	}
 }
 
@@ -171,8 +177,8 @@ type QuadTreeNode struct {
 	Region BBox
 
 	// Whether the quad tree
-	// has split yet
-	hasSplit bool
+	// has attempted a split yet
+	hasAttemptedSplit bool
 
 	// The parent quad tree
 	parent *QuadTreeNode
@@ -189,6 +195,7 @@ type QuadTreeNode struct {
 
 // Adds a body
 func (qNode *QuadTreeNode) AddBody(b *Body) {
+
 	// Check if the body is within this region.
 	// If not return
 	switch b.Shape.GetType() {
@@ -210,14 +217,10 @@ func (qNode *QuadTreeNode) AddBody(b *Body) {
 		panic("unsupported type: " + b.Shape.GetType())
 	}
 
-	// Split if necessary and less than depth
-	if len(qNode.bodies)+1 >= qNode.tree.splitAmount && qNode.depth+1 < qNode.tree.maxDepth {
-		qNode.split()
-	}
-
-	// If already split
-	// give it to the children
-	if qNode.hasSplit {
+	// If already split and it is successful
+	// give it to the children. If split was successful
+	// the children should not be nil
+	if qNode.hasAttemptedSplit && qNode.topLeft != nil {
 		qNode.topLeft.AddBody(b)
 		qNode.topRight.AddBody(b)
 		qNode.bottomLeft.AddBody(b)
@@ -228,6 +231,12 @@ func (qNode *QuadTreeNode) AddBody(b *Body) {
 		// Cache to body
 		qNode.tree.cacheBodyToNode(b, qNode)
 	}
+
+	// Split if necessary and less than depth
+	if len(qNode.bodies) >= qNode.tree.splitAmount && !qNode.hasAttemptedSplit && qNode.depth < qNode.tree.maxDepth {
+		qNode.hasAttemptedSplit = true
+		qNode.split()
+	}
 }
 
 // Splits the quad tree.
@@ -235,12 +244,17 @@ func (qNode *QuadTreeNode) AddBody(b *Body) {
 func (qNode *QuadTreeNode) split() {
 	// If already split
 	// do nothing
-	if qNode.hasSplit {
+	if qNode.hasAttemptedSplit {
+		return
+	}
+
+	// Max depth so ignore
+	if qNode.depth >= qNode.tree.maxDepth {
 		return
 	}
 
 	// Split
-	qNode.hasSplit = true
+	qNode.hasAttemptedSplit = true
 
 	// Create subtrees
 
@@ -249,8 +263,7 @@ func (qNode *QuadTreeNode) split() {
 		topLeftBBox := BBox{}
 		topLeftBBox.TopLeft = qNode.Region.TopLeft
 		topLeftBBox.BottomRight = topLeftBBox.TopLeft.Add(qNode.Region.Size().Scale(0.5))
-		qNode.topLeft = NewQuadTreeNode(topLeftBBox, qNode.tree)
-		qNode.topLeft.depth = qNode.depth + 1
+		qNode.topLeft = NewQuadTreeNode(topLeftBBox, qNode.tree, qNode.depth+1)
 		qNode.topLeft.parent = qNode
 	}
 
@@ -259,8 +272,7 @@ func (qNode *QuadTreeNode) split() {
 		topRightBBox := BBox{}
 		topRightBBox.TopLeft = qNode.Region.TopLeft.Add(Vector{X: qNode.Region.Size().Scale(0.5).X})
 		topRightBBox.BottomRight = topRightBBox.TopLeft.Add(qNode.Region.Size().Scale(0.5))
-		qNode.topRight = NewQuadTreeNode(topRightBBox, qNode.tree)
-		qNode.topRight.depth = qNode.depth + 1
+		qNode.topRight = NewQuadTreeNode(topRightBBox, qNode.tree, qNode.depth+1)
 		qNode.topRight.parent = qNode
 	}
 
@@ -269,8 +281,7 @@ func (qNode *QuadTreeNode) split() {
 		bottomLeftBBox := BBox{}
 		bottomLeftBBox.TopLeft = qNode.Region.TopLeft.Add(Vector{Y: qNode.Region.Size().Scale(0.5).Y})
 		bottomLeftBBox.BottomRight = bottomLeftBBox.TopLeft.Add(qNode.Region.Size().Scale(0.5))
-		qNode.bottomLeft = NewQuadTreeNode(bottomLeftBBox, qNode.tree)
-		qNode.bottomLeft.depth = qNode.depth + 1
+		qNode.bottomLeft = NewQuadTreeNode(bottomLeftBBox, qNode.tree, qNode.depth+1)
 		qNode.bottomLeft.parent = qNode
 	}
 
@@ -279,8 +290,7 @@ func (qNode *QuadTreeNode) split() {
 		bottomRightBBox := BBox{}
 		bottomRightBBox.TopLeft = qNode.Region.TopLeft.Add(qNode.Region.Size().Scale(0.5))
 		bottomRightBBox.BottomRight = qNode.Region.BottomRight
-		qNode.bottomRight = NewQuadTreeNode(bottomRightBBox, qNode.tree)
-		qNode.bottomRight.depth = qNode.depth + 1
+		qNode.bottomRight = NewQuadTreeNode(bottomRightBBox, qNode.tree, qNode.depth+1)
 		qNode.bottomRight.parent = qNode
 	}
 
@@ -300,4 +310,9 @@ func (qNode *QuadTreeNode) split() {
 
 	// Clear current quadtree
 	qNode.bodies = map[*Body]bool{}
+
+	if repeatNum > 100 {
+		panic("")
+	}
+	repeatNum++
 }
