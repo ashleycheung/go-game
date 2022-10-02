@@ -34,6 +34,15 @@ type GameWorld struct {
 	// Stores a slice of functions to call
 	// at the next tick
 	funcQueue []func()
+
+	// The time the world started
+	worldStartTime time.Time
+}
+
+// Gets the world time which is basically the milliseconds
+// since the start
+func (w *GameWorld) GetWorldTime() float64 {
+	return float64(time.Since(w.worldStartTime).Milliseconds())
 }
 
 // Queues a function to be called at the start
@@ -111,6 +120,7 @@ func (w *GameWorld) Step(delta float64) {
 // possible fps
 func (w *GameWorld) Run(fps int) {
 	currTime := time.Now()
+	w.worldStartTime = time.Now()
 	if w.running {
 		fmt.Println("can't run world as it is already running")
 		return

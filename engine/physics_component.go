@@ -37,7 +37,7 @@ func NewPhysicsComponent(shape physics.Shape) *PhysicsComponent {
 		physics.BodyCollideEvent,
 		func(e event.Event[physics.PhysicsBodyEvent]) error {
 			component.Event.EmitEvent(event.Event[PhysicsComponentEvent]{
-				Name: OnPhysicsComponentCollide,
+				Name: OnPhysicsComponentCollideEvent,
 				// Add the target body's physic component
 				// which is stored in the meta data
 				Data: OnPhysicsComponentCollideData{

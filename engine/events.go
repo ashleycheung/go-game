@@ -5,10 +5,10 @@ type GameObjectEvent string
 
 const (
 	// Called when a body first enters the scene
-	OnSceneEnterEvent GameObjectEvent = "onSceneEnter"
+	OnSceneEnterEvent GameObjectEvent = "onSceneEnterEvent"
 
 	// Called when the body leaves the scene
-	OnSceneExitEvent GameObjectEvent = "onSceneExit"
+	OnSceneExitEvent GameObjectEvent = "onSceneExitEvent"
 
 	// Called when a step begins for the given game object
 	OnGameObjectStepEvent GameObjectEvent = "onGameObjectStepEvent"
@@ -20,7 +20,7 @@ type WorldEvent string
 // are called by the game world
 const (
 	// Runs before all game steps by the world
-	BeforeGameStepEvent WorldEvent = "beforeGameStep"
+	BeforeGameStepEvent WorldEvent = "beforeGameStepEvent"
 	// Called after the game step finishes
 	AfterGameStepEvent WorldEvent = "afterGameStepEvent"
 )
@@ -28,7 +28,7 @@ const (
 type PhysicsComponentEvent string
 
 const (
-	OnPhysicsComponentCollide PhysicsComponentEvent = "onPhysicsComponentCollide"
+	OnPhysicsComponentCollideEvent PhysicsComponentEvent = "onPhysicsComponentCollideEvent"
 )
 
 // The data type during collision

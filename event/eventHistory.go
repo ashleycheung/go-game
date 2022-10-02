@@ -16,6 +16,10 @@ type EventHistory[T comparable] struct {
 	// Name of all the events tracked
 	// If empty, all events are tracked
 	trackedEvents map[T]bool
+
+	// Stores whether there are events
+	// that have not been read yet
+	hasUnreadHistory bool
 }
 
 // Creates a new event history
@@ -27,6 +31,11 @@ func NewEventHistory[T comparable]() *EventHistory[T] {
 	}
 }
 
+// Returns whether there is history that has not been read yet
+func (eH *EventHistory[T]) HasUnreadHistory() bool {
+	return eH.hasUnreadHistory
+}
+
 // Returns the history of events with
 // the latest one first
 func (eH *EventHistory[T]) GetHistory() []Event[T] {
@@ -34,6 +43,7 @@ func (eH *EventHistory[T]) GetHistory() []Event[T] {
 	for i := 0; i < len(eH.history); i++ {
 		outHistory[len(eH.history)-i-1] = eH.history[i]
 	}
+	eH.hasUnreadHistory = false
 	return outHistory
 }
 
@@ -49,6 +59,7 @@ func (eH *EventHistory[T]) pushEvent(event Event[T]) {
 	if len(eH.history) > eH.BufferSize {
 		eH.history = eH.history[1:]
 	}
+	eH.hasUnreadHistory = true
 }
 
 // Tracks the given event manager
