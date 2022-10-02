@@ -13,6 +13,9 @@ type Component interface {
 	// to game object
 	OnGameObjectAttach()
 
+	// Called when detached from game object
+	OnGameObjectDetach()
+
 	// Sets the game object
 	// internally used by game object
 	setGameObject(obj *GameObject)
@@ -29,6 +32,8 @@ func (b *BaseComponent) GetGameObject() *GameObject {
 }
 
 func (b *BaseComponent) OnGameObjectAttach() {}
+
+func (b *BaseComponent) OnGameObjectDetach() {}
 
 func (b *BaseComponent) setGameObject(obj *GameObject) {
 	b.obj = obj

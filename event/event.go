@@ -5,7 +5,7 @@ import "fmt"
 func NewEventManager() *EventManager {
 	return &EventManager{
 		listeners:   map[string]map[int]EventListener{},
-		middlewares: []func(event Event) Event{},
+		middlewares: map[int]func(event Event) Event{},
 	}
 }
 
@@ -15,7 +15,7 @@ type EventManager struct {
 	listeners map[string]map[int]EventListener
 
 	// All middle wares for the event
-	middlewares []func(event Event) Event
+	middlewares map[int]func(event Event) Event
 
 	idIncrement int
 }
@@ -56,8 +56,13 @@ func (e *EventManager) AddListener(
 }
 
 // Adds a middleware to the event manager
-func (e *EventManager) Middleware(fn func(event Event) Event) {
-	e.middlewares = append(e.middlewares, fn)
+func (e *EventManager) Middleware(fn func(event Event) Event) func() {
+	e.idIncrement++
+	id := e.idIncrement
+	e.middlewares[id] = fn
+	return func() {
+		delete(e.middlewares, id)
+	}
 }
 
 func (e *EventManager) EmitEvent(event Event) error {

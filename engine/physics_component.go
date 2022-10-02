@@ -19,6 +19,8 @@ type PhysicsComponent struct {
 	BaseComponent
 	Body  *physics.Body
 	Event *event.EventManager
+	// array of  clean up funcs called when clean up
+	cleanUpFuncs []func()
 }
 
 // On object attach add physics body
@@ -30,25 +32,45 @@ func (pC *PhysicsComponent) OnGameObjectAttach() {
 	}
 
 	// On enter add physics body
-	obj.Event.
+	rmEnter := obj.Event.
 		AddListener(string(OnSceneEnterEvent), func(e event.Event) error {
 			obj.World.Physics.AddBody(pC.Body)
 			return nil
 		})
 
 	// On exit remove physics body
-	obj.Event.
+	rmExit := obj.Event.
 		AddListener(string(OnSceneExitEvent), func(e event.Event) error {
-			obj.World.Physics.RemoveBody(pC.Body)
+			pC.cleanUp()
 			return nil
 		})
+
+	// Wrap the clean up func
+	// Remove body on clean up
+	pC.cleanUpFuncs = append(pC.cleanUpFuncs, func() {
+		obj.World.Physics.RemoveBody(pC.Body)
+	})
+	pC.cleanUpFuncs = append(pC.cleanUpFuncs, rmEnter)
+	pC.cleanUpFuncs = append(pC.cleanUpFuncs, rmExit)
+}
+
+func (pC *PhysicsComponent) OnGameObjectDetach() {
+	pC.cleanUp()
+}
+
+func (pC *PhysicsComponent) cleanUp() {
+	// Call all the clean up funcs
+	for _, f := range pC.cleanUpFuncs {
+		f()
+	}
 }
 
 // Creates new physics component
 func NewPhysicsComponent(shape physics.Shape) *PhysicsComponent {
 	component := &PhysicsComponent{
-		Body:  physics.NewBody(shape),
-		Event: event.NewEventManager(),
+		Body:         physics.NewBody(shape),
+		Event:        event.NewEventManager(),
+		cleanUpFuncs: []func(){},
 	}
 	// Stores the component in the body
 	// as metadata

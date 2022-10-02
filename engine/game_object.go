@@ -161,7 +161,12 @@ func (g *GameObject) AddComponent(name string, component Component) {
 
 // Removes the component of the given name
 func (g *GameObject) RemoveComponent(name string) {
-	delete(g.components, name)
+	comp, exists := g.components[name]
+	if exists {
+		comp.OnGameObjectDetach()
+		delete(g.components, name)
+		comp.setGameObject(nil)
+	}
 }
 
 // Gets a component of the given name, Returns nil if it doesnt exist
