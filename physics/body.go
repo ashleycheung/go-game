@@ -14,7 +14,7 @@ func NewBody(shape Shape) *Body {
 		Id:               0,
 		Shape:            shape,
 		Mass:             1,
-		event:            event.NewEventManager(),
+		event:            event.NewEventManager[PhysicsBodyEvent](),
 		DragCoefficient:  1,
 		CollisionBodyIds: map[int]bool{},
 	}
@@ -38,7 +38,7 @@ type Body struct {
 	Position Vector `json:"position"`
 
 	// Manages event
-	event *event.EventManager
+	event *event.EventManager[PhysicsBodyEvent]
 
 	// Velocity in units per second
 	Velocity Vector `json:"velocity"`
@@ -125,17 +125,9 @@ func (b *Body) Clone() *Body {
 }
 
 // Returns the event manager
-func (b *Body) GetEvent() *event.EventManager {
+func (b *Body) GetEvent() *event.EventManager[PhysicsBodyEvent] {
 	return b.event
 }
-
-type BodyEvent string
-
-const (
-	// Called when a body collides with another body
-	// and returns that body.
-	BodyCollideEvent BodyEvent = "bodycollide"
-)
 
 // Returned in the data field
 // during the body collision event

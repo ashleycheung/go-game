@@ -28,7 +28,7 @@ func TestCollideEvent(t *testing.T) {
 	didCollide := true
 
 	// Add listener for collision
-	body1.GetEvent().AddListener(string(BodyCollideEvent), func(e event.Event) error {
+	body1.GetEvent().AddListener(BodyCollideEvent, func(e event.Event[PhysicsBodyEvent]) error {
 		targetBody := e.Data.(BodyCollideEventData).TargetBody
 		// Prints true
 		didCollide = targetBody == body2
@@ -51,7 +51,7 @@ func ExampleNewBody() {
 	world.AddBody(body2)
 
 	// Add listener for collision
-	body1.GetEvent().AddListener(string(BodyCollideEvent), func(e event.Event) error {
+	body1.GetEvent().AddListener(BodyCollideEvent, func(e event.Event[PhysicsBodyEvent]) error {
 		targetBody := e.Data.(BodyCollideEventData).TargetBody
 		// Prints true
 		fmt.Println(targetBody == body2)

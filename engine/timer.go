@@ -2,21 +2,17 @@ package engine
 
 import "github.com/ashleycheung/go-game/event"
 
-// Called when the timer finishes
-const OnTimerEndEvent = "onTimerEndEvent"
-const OnTimerStartEvent = "onTimerStartEvent"
-
 // Creates a new timer component
 func NewTimerComponent() *TimerComponent {
 	return &TimerComponent{
-		Event: event.NewEventManager(),
+		Event: event.NewEventManager[TimerComponentEvent](),
 	}
 }
 
 type TimerComponent struct {
 	BaseComponent
 	// Timer events
-	Event *event.EventManager
+	Event *event.EventManager[TimerComponentEvent]
 	// Whether running or not
 	isRunning bool
 	// Time passed since start
@@ -36,7 +32,7 @@ func (tC *TimerComponent) Start() {
 	tC.isRunning = true
 	tC.timePassed = 0
 	// Emit event
-	tC.Event.EmitEvent(event.Event{
+	tC.Event.EmitEvent(event.Event[TimerComponentEvent]{
 		Name: OnTimerStartEvent,
 	})
 }
@@ -54,7 +50,7 @@ func (tC *TimerComponent) Step(delta float64) {
 				tC.isRunning = false
 			}
 			// Emit event
-			tC.Event.EmitEvent(event.Event{
+			tC.Event.EmitEvent(event.Event[TimerComponentEvent]{
 				Name: OnTimerEndEvent,
 			})
 		}

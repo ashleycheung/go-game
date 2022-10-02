@@ -109,8 +109,8 @@ func msgHandler(
 		fmt.Println("start")
 		// Every time a tick finishes send a state update
 		removeListener := playground.world.Event.AddListener(
-			string(physics.StepEndEvent),
-			func(e event.Event) error {
+			physics.StepEndEvent,
+			func(e event.Event[physics.PhysicsWorldEvent]) error {
 				return sendState(playground.world, msgType, ws)
 			})
 

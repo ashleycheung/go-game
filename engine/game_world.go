@@ -15,7 +15,7 @@ type GameWorld struct {
 	idIncrement int
 
 	// Game world specific events
-	Event *event.EventManager
+	Event *event.EventManager[WorldEvent]
 
 	// The scene is the root
 	// of the game tree
@@ -91,7 +91,9 @@ func (w *GameWorld) removeObjectFromGroup(obj *GameObject, groupName string) {
 // Game world step
 func (w *GameWorld) Step(delta float64) {
 	// Start step
-	w.Event.EmitEvent(event.Event{Name: string(BeforeGameStepEvent)})
+	w.Event.EmitEvent(event.Event[WorldEvent]{
+		Name: BeforeGameStepEvent,
+	})
 	// Process functions
 	w.processFunctions()
 	// Increment scene
@@ -99,7 +101,9 @@ func (w *GameWorld) Step(delta float64) {
 	// Update physics
 	w.Physics.Step(delta)
 	// Emit step finish event
-	w.Event.EmitEvent(event.Event{Name: string(AfterGameStepEvent)})
+	w.Event.EmitEvent(event.Event[WorldEvent]{
+		Name: AfterGameStepEvent,
+	})
 }
 
 // Runs the world at the given fps.
@@ -145,7 +149,7 @@ func (w *GameWorld) Stop() {
 // Creates a new game world
 func NewGameWorld() *GameWorld {
 	w := &GameWorld{
-		Event:     event.NewEventManager(),
+		Event:     event.NewEventManager[WorldEvent](),
 		funcQueue: []func(){},
 	}
 	w.groupsMap = map[string]map[*GameObject]bool{}
@@ -153,12 +157,3 @@ func NewGameWorld() *GameWorld {
 	w.Physics = physics.NewWorld()
 	return w
 }
-
-// Events that
-// are called by the game world
-const (
-	// Runs before all game steps by the world
-	BeforeGameStepEvent GameEvent = "beforeGameStep"
-	// Called after the game step finishes
-	AfterGameStepEvent GameEvent = "afterGameStepEvent"
-)

@@ -91,16 +91,16 @@ func FindCollisions(w *World) []Collision {
 	// call the event
 	for _, c := range outCollisions {
 		// Call b1 event
-		c.B1.GetEvent().EmitEvent(event.Event{
-			Name: string(BodyCollideEvent),
+		c.B1.GetEvent().EmitEvent(event.Event[PhysicsBodyEvent]{
+			Name: BodyCollideEvent,
 			Data: BodyCollideEventData{
 				TargetBody: c.B2,
 			},
 		})
 
 		// Call b2 event
-		c.B2.GetEvent().EmitEvent(event.Event{
-			Name: string(BodyCollideEvent),
+		c.B2.GetEvent().EmitEvent(event.Event[PhysicsBodyEvent]{
+			Name: BodyCollideEvent,
 			Data: BodyCollideEventData{
 				TargetBody: c.B1,
 			},

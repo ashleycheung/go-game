@@ -5,13 +5,13 @@ import (
 )
 
 func TestEventHistory(t *testing.T) {
-	eH := NewEventHistory()
-	eM := NewEventManager()
+	eH := NewEventHistory[string]()
+	eM := NewEventManager[string]()
 	eH.Track(eM)
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "one",
 	})
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "two",
 	})
 	history := eH.GetHistory()
@@ -24,23 +24,23 @@ func TestEventHistory(t *testing.T) {
 }
 
 func TestEventHistoryBuffer(t *testing.T) {
-	eH := NewEventHistory()
+	eH := NewEventHistory[string]()
 	eH.BufferSize = 4
-	eM := NewEventManager()
+	eM := NewEventManager[string]()
 	eH.Track(eM)
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "one",
 	})
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "two",
 	})
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "three",
 	})
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "four",
 	})
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "five",
 	})
 	history := eH.GetHistory()
@@ -56,23 +56,23 @@ func TestEventHistoryBuffer(t *testing.T) {
 }
 
 func TestEventHistoryTrackEvents(t *testing.T) {
-	eH := NewEventHistory()
-	eM := NewEventManager()
+	eH := NewEventHistory[string]()
+	eM := NewEventManager[string]()
 	eH.Track(eM)
 	eH.TrackEvent("two")
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "one",
 	})
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "two",
 	})
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "three",
 	})
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "four",
 	})
-	eM.EmitEvent(Event{
+	eM.EmitEvent(Event[string]{
 		Name: "five",
 	})
 	history := eH.GetHistory()

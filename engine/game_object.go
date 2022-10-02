@@ -6,25 +6,12 @@ import (
 	"github.com/ashleycheung/go-game/event"
 )
 
-type GameEvent string
-
-const (
-	// Called when a body first enters the scene
-	OnSceneEnterEvent GameEvent = "onSceneEnter"
-
-	// Called when the body leaves the scene
-	OnSceneExitEvent GameEvent = "onSceneExit"
-
-	// Called when a step begins for the given game object
-	OnGameObjectStepEvent GameEvent = "onGameObjectStepEvent"
-)
-
 // Creates a new game object
 func NewGameObject() *GameObject {
 	obj := &GameObject{}
 	obj.groupsSet = map[string]bool{}
 	obj.Children = []*GameObject{}
-	obj.Event = event.NewEventManager()
+	obj.Event = event.NewEventManager[GameObjectEvent]()
 	obj.components = map[string]Component{}
 	return obj
 }
@@ -37,7 +24,7 @@ type GameObject struct {
 	Id int
 
 	// Event manager
-	Event *event.EventManager
+	Event *event.EventManager[GameObjectEvent]
 
 	// Reference to the game world.
 	// This will be set to nil if
@@ -62,8 +49,8 @@ type GameObject struct {
 
 // This is called every step by the game
 func (g *GameObject) Step(delta float64) {
-	g.Event.EmitEvent(event.Event{
-		Name: string(OnGameObjectStepEvent),
+	g.Event.EmitEvent(event.Event[GameObjectEvent]{
+		Name: OnGameObjectStepEvent,
 	})
 	// Call components
 	for _, c := range g.components {
@@ -105,7 +92,16 @@ func (g *GameObject) AddChild(o *GameObject) error {
 			}
 
 			// Call enter event
-			nextObj.Event.EmitEvent(event.Event{Name: string(OnSceneEnterEvent)})
+			nextObj.Event.EmitEvent(event.Event[GameObjectEvent]{
+				Name: OnSceneEnterEvent,
+			})
+
+			// Call all components on enter
+			if g.IsInScene() {
+				for _, c := range nextObj.components {
+					c.OnSceneEnter()
+				}
+			}
 		}
 	}
 	g.Children = append(g.Children, o)
@@ -122,8 +118,16 @@ func (g *GameObject) RemoveChild(o *GameObject) {
 		for objIter.HasNext() {
 			nextObj := objIter.Next()
 
+			if g.IsInScene() {
+				for _, c := range nextObj.components {
+					c.OnSceneExit()
+				}
+			}
+
 			// Call exit event
-			nextObj.Event.EmitEvent(event.Event{Name: string(OnSceneExitEvent)})
+			nextObj.Event.EmitEvent(event.Event[GameObjectEvent]{
+				Name: OnSceneExitEvent,
+			})
 
 			// Remove groups from world cache
 			for _, groupName := range nextObj.GetGroups() {
@@ -156,7 +160,11 @@ func (g *GameObject) GetChildren() []*GameObject {
 func (g *GameObject) AddComponent(name string, component Component) {
 	g.components[name] = component
 	component.setGameObject(g)
+	component.baseOnGameObjectAttach()
 	component.OnGameObjectAttach()
+	if g.IsInScene() {
+		component.OnSceneEnter()
+	}
 }
 
 // Removes the component of the given name
@@ -164,6 +172,10 @@ func (g *GameObject) RemoveComponent(name string) {
 	comp, exists := g.components[name]
 	if exists {
 		comp.OnGameObjectDetach()
+		comp.baseOnGameObjectDetach()
+		if g.IsInScene() {
+			comp.OnSceneExit()
+		}
 		delete(g.components, name)
 		comp.setGameObject(nil)
 	}
@@ -206,4 +218,9 @@ func (g *GameObject) GetGroups() []string {
 // Returns whether the game object is part of the given group
 func (g *GameObject) InGroup(groupName string) bool {
 	return g.groupsSet[groupName]
+}
+
+// Return whether currently in the scene
+func (g *GameObject) IsInScene() bool {
+	return g.World != nil
 }

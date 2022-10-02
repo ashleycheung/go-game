@@ -10,7 +10,7 @@ import (
 func NewWorld() *World {
 	w := &World{
 		bodies: map[int]*Body{},
-		Event:  event.NewEventManager(),
+		Event:  event.NewEventManager[PhysicsWorldEvent](),
 		Config: DefaultWorldConfig(),
 	}
 	w.QuadTree = NewQuadTree(BBox{}, DefaultSplitAmount, DefaultMaxDepth)
@@ -26,7 +26,7 @@ type World struct {
 	Config WorldConfig
 
 	// Manages the events in the world
-	Event *event.EventManager
+	Event *event.EventManager[PhysicsWorldEvent]
 
 	// Maps the id to the body
 	// in the world
@@ -93,8 +93,8 @@ func (w *World) Step(delta float64) {
 	}
 
 	// Called before collision detection occurs
-	w.Event.EmitEvent(event.Event{
-		Name: string(BeforeCollisionDetectionEvent),
+	w.Event.EmitEvent(event.Event[PhysicsWorldEvent]{
+		Name: BeforeCollisionDetectionEvent,
 	})
 
 	// Detect collision and continue
@@ -108,8 +108,8 @@ func (w *World) Step(delta float64) {
 	ApplyMomentum(collisions)
 
 	// Call step finish event
-	err := w.Event.EmitEvent(event.Event{
-		Name: string(StepEndEvent),
+	err := w.Event.EmitEvent(event.Event[PhysicsWorldEvent]{
+		Name: StepEndEvent,
 	})
 	if err != nil {
 		panic(err)
@@ -165,11 +165,3 @@ func (w *World) Run(fps int) {
 func (w *World) Stop() {
 	w.running = false
 }
-
-type WorldEvent string
-
-const (
-	// Called when a step has finished
-	StepEndEvent                  WorldEvent = "stepend"
-	BeforeCollisionDetectionEvent WorldEvent = "beforeCollisionDetection"
-)
